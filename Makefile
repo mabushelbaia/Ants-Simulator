@@ -9,8 +9,7 @@ OBJECTS = $(OBJ_DIR)/main.o #$(pathsubst %, $(OBJ_DIR)/%, $(OBJECT_NAMES))
 TARGET = $(OBJ_DIR)/main.o
 # Flags
 WFLAGS = -Wall -Wshadow #Werror shows warrning as errors, -Wextra
-IFLAGS = `sdl2-config --libs --cflags` -ggdb3 -O0 --std=c99 -Wall
-CFLAGS = $(WFLAGS) -lm -g 
+UIFLAGS = `sdl2-config --libs --cflags` -ggdb3 -O0 --std=c99 -Wall -lm -g
 CC = gcc
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
@@ -25,5 +24,5 @@ clean:
 	# rm -r  $(BIN_DIR)/
 gui: 
 	@mkdir -p build/bin
-	$(CC) $(IFLAGS) $(SRC_DIR)/gui/interface.c -o $(BIN_DIR)/interface
-	$(BIN_DIR)/interface
+	$(CC) $(UIFLAGS) $(SRC_DIR)/ui.c -o $(BIN_DIR)/ui
+	$(BIN_DIR)/ui
