@@ -4,14 +4,15 @@
 #include <stdbool.h>
 #include <math.h>
 #define PI 3.141592654
-typedef struct Ant {
+typedef struct Ant
+{
     float x;
     float y;
     float x_speed;
     float y_speed;
     int size;
 } Ant;
-Ant ant;
+Ant ant[10];
 // Screen dimension constants
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -22,25 +23,27 @@ bool initialize(void);
 void update(float);
 void shutdown(void);
 void renderAnt(const Ant *ant);
-void updateAnt(Ant* ant, float elapsed);
+void updateAnt(Ant *ant, float elapsed);
 Ant makeAnt(int size);
 int main(int argc, char *args[])
 {
     atexit(shutdown);
     bool status = initialize();
-    if (!status) exit(1);
+    if (!status)
+        exit(1);
     bool quit = false;
     SDL_Event event;
     unsigned int lastTick = SDL_GetTicks();
-    ant = makeAnt(ANT_SIZE);
+    for (int i = 0; i < 10; ++i)
+        ant[i] = makeAnt(ANT_SIZE);
     while (!quit)
     {
         while (SDL_PollEvent(&event))
-            if (event.type == SDL_QUIT) quit = true;
+            if (event.type == SDL_QUIT)
+                quit = true;
         unsigned int curTick = SDL_GetTicks();
         unsigned int diff = curTick - lastTick;
         float elapsed = diff / 1000.0f;
-
         update(elapsed);
         lastTick = curTick;
     }
@@ -70,8 +73,11 @@ void update(float elapsed)
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    updateAnt(&ant, elapsed);
-    renderAnt(&ant);
+    for (int i = 0; i < 10; ++i)
+    {
+        updateAnt(&ant[i], elapsed);
+        renderAnt(&ant[i]);
+    }
     SDL_RenderPresent(renderer);
 }
 void shutdown(void)
@@ -82,11 +88,12 @@ void shutdown(void)
         SDL_DestroyWindow(window);
     SDL_Quit();
 }
-Ant makeAnt(int size) {
+Ant makeAnt(int size)
+{
     const float SPEED = 120;
     Ant ant = {
-        .x = SCREEN_WIDTH / 2 - size/2, 
-        .y = SCREEN_HEIGHT / 2 - size/2,
+        .x = rand() % SCREEN_WIDTH + 2,
+        .y = rand() % SCREEN_HEIGHT + 2,
         .size = size,
         .x_speed = SPEED,
         .y_speed = SPEED,
@@ -94,7 +101,8 @@ Ant makeAnt(int size) {
     return ant;
 }
 
-void renderAnt(const Ant *ant) {
+void renderAnt(const Ant *ant)
+{
     int size = ant->size;
     int halfSize = size / 2;
     SDL_Rect rect = {
@@ -107,15 +115,18 @@ void renderAnt(const Ant *ant) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void updateAnt(Ant* ant, float elapsed){
-    ant-> x += ant->x_speed * elapsed;
-    ant-> y += ant->y_speed * elapsed;
-    int x_cor = ant->x + ant->size /2;
-    int y_cor = ant->y + ant->size /2;
-    if (x_cor >= SCREEN_WIDTH || x_cor <= 0) {
+void updateAnt(Ant *ant, float elapsed)
+{
+    ant->x += ant->x_speed * elapsed;
+    ant->y += ant->y_speed * elapsed;
+    int x_cor = ant->x + ant->size / 2;
+    int y_cor = ant->y + ant->size / 2;
+    if (x_cor >= SCREEN_WIDTH || x_cor <= 0)
+    {
         ant->x_speed *= -1;
     }
-    if (y_cor >= SCREEN_HEIGHT || y_cor <= 0) {
+    if (y_cor >= SCREEN_HEIGHT || y_cor <= 0)
+    {
         ant->y_speed *= -1;
     }
 }
