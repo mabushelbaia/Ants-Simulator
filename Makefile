@@ -20,8 +20,8 @@ run: $(TARGET)
 	$(TARGET)
 all: $(TARGET)
 clean:
-	rm -r $(OBJ_DIR)/
-	# rm -r  $(BIN_DIR)/
+	@rm -r $(OBJ_DIR)/
+	@rm -r  $(BIN_DIR)/
 gui: 
 	@mkdir -p build/bin
 	$(CC) $(UIFLAGS) $(SRC_DIR)/ui.c -o $(BIN_DIR)/ui
