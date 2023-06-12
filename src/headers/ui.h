@@ -21,7 +21,7 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int ANT_SIZE = 20;
+const int ANT_SIZE = 10;
 const float bounce[2] = { PI -PI / 4, PI + PI / 4};
 // Functions
 bool initialize(void);

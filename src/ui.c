@@ -2,7 +2,6 @@
 Ant ant[10];
 // Screen dimension constants
 
-Ant makeAnt(int size);
 int main(int argc, char *args[])
 {
     srand(getpid() + time(NULL));
