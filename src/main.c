@@ -1,6 +1,6 @@
-#include "headers/common.h"
 #include "SDL2/SDL.h"
 #include "headers/ui.h"
+#include "headers/common.h"
 int NUM_ANTS = 300;
 int FOOD_DELAY = 10;
 int SPEED = 7;
@@ -31,7 +31,10 @@ int main(int argc, char *argv[])
 	printf("FOOD_DETECTION_RADIUS: %d\n", FOOD_DETECTION_RADIUS);
 	printf("PHERMONE_DETECTION_RADIUS: %d\n", PHERMONE_DETECTION_RADIUS);
 	srand(getpid() + time(NULL));
-	//atexit(shutdown);
+	//Create 'NUM_ANTS' threads each thread should run the 'updateAnt' function 
+	//and each thread should be passed a unique 'Ant' struct
+
+	atexit(shutdown);
 	bool status = initialize();
 	if (!status)
 		exit(1);
@@ -64,6 +67,7 @@ int main(int argc, char *argv[])
 		float elapsed = diff / 3000.0;
 		if (started)
 			update(ant, NUM_ANTS, elapsed);
+		updateAnt(&ant[0], elapsed);
 		lastTick = curTick;
 	}
 }

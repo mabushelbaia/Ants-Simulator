@@ -11,6 +11,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <pthread.h>
 
 #define PI 3.14159265358979323846
 
