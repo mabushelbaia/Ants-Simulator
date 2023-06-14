@@ -1,9 +1,11 @@
 #include "headers/common.h"
 #include "SDL2/SDL.h"
 #include "headers/ui.h"
-int NUM_ANTS;
-int FOOD_DELAY;
-int SPEED;
+int NUM_ANTS = 300;
+int FOOD_DELAY = 10;
+int SPEED = 7;
+int FOOD_DETECTION_RADIUS = 3;
+int PHERMONE_DETECTION_RADIUS = 10;
 Ant *ant;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -27,9 +29,12 @@ int main(int argc, char *argv[])
 		printf("Error: could not read constants from file %s\n", argv[1]);
 		exit(1);
 	}
+	printf("Displaying constants from file %s\n", argv[1]);
 	printf("NUMBER_ANTS: %d\n", NUM_ANTS);
 	printf("FOOD_DELAY: %d\n", FOOD_DELAY);
 	printf("SPEED: %d\n", SPEED);
+	printf("FOOD_DETECTION_RADIUS: %d\n", FOOD_DETECTION_RADIUS);
+	printf("PHERMONE_DETECTION_RADIUS: %d\n", PHERMONE_DETECTION_RADIUS);
 	srand(getpid() + time(NULL));
 	//atexit(shutdown);
 	status = initialize();
@@ -96,6 +101,16 @@ bool readConstants(char *file_name)
 		{
 			token = strtok(NULL, " ");
 			SPEED = atoi(token);
+		}
+		else if (!strcmp(token, "FOOD_DETECTION_RADIUS"))
+		{
+			token = strtok(NULL, " ");
+			FOOD_DETECTION_RADIUS = atoi(token);
+		}
+		else if (!strcmp(token, "PHERMONE_DETECTION_RADIUS"))
+		{
+			token = strtok(NULL, " ");
+			PHERMONE_DETECTION_RADIUS = atoi(token);
 		}
 	}
 	fclose(file);
