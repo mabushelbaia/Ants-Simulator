@@ -14,21 +14,16 @@ const int SCREEN_WIDTH = 1920 / 2;
 const int SCREEN_HEIGHT = 1080 / 2;
 const int ANT_SIZE = 10;
 const float bounce[2] = {PI - PI / 4, PI + PI / 4};
-bool readConstants(char *file_name);
+void readConstants(char *file_name);
+
 int main(int argc, char *argv[])
 {
-
 	if (argc < 2)
 	{
 		printf("Usage: %s <filename>\n", argv[0]);
 		exit(1);
 	}
-	bool status = readConstants(argv[1]);
-	if (!status)
-	{
-		printf("Error: could not read constants from file %s\n", argv[1]);
-		exit(1);
-	}
+	readConstants(argv[1]);
 	printf("Displaying constants from file %s\n", argv[1]);
 	printf("NUMBER_ANTS: %d\n", NUM_ANTS);
 	printf("FOOD_DELAY: %d\n", FOOD_DELAY);
@@ -37,7 +32,7 @@ int main(int argc, char *argv[])
 	printf("PHERMONE_DETECTION_RADIUS: %d\n", PHERMONE_DETECTION_RADIUS);
 	srand(getpid() + time(NULL));
 	//atexit(shutdown);
-	status = initialize();
+	bool status = initialize();
 	if (!status)
 		exit(1);
 	bool quit = false;
@@ -73,7 +68,7 @@ int main(int argc, char *argv[])
 	}
 }
 
-bool readConstants(char *file_name)
+void readConstants(char *file_name)
 {
 	char path[256];
 	sprintf(path, "./data/input/%s", file_name);
@@ -81,7 +76,7 @@ bool readConstants(char *file_name)
 	if (!file)
 	{
 		printf("Error: could not open file %s\n", path);
-		return false;
+		exit(1);
 	}
 	char line[256];
 	while (fgets(line, sizeof(line), file))
@@ -114,5 +109,4 @@ bool readConstants(char *file_name)
 		}
 	}
 	fclose(file);
-	return true;
 }
