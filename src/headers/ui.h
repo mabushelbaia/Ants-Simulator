@@ -9,6 +9,8 @@
 #include <math.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdlib.h>
+#include <signal.h>
 
 #define PI 3.14159265358979323846
 
@@ -31,7 +33,7 @@ extern const float bounce[2];
 // Functions
 bool initialize(void);
 void update(Ant *ant, int NUM_ANTS, float elapsed);
-void shutdown(void);
+int shutdown(void);
 void renderAnt(const Ant *ant);
 void updateAnt(Ant *ant, float elapsed);
 void updateAnts(Ant *ants, int count, float elapsed);

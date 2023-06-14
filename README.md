@@ -28,4 +28,7 @@ A simple structre I use for my c projects.
 ```
 
 ## TODO
-- [ ] Makefile
+- [x] Makefile
+- [ ] Threads
+- [ ] Food
+- [ ] Mutex

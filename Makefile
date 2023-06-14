@@ -9,7 +9,7 @@ SOURCES = $(SRC_DIR)/main.c \
 # OBJECTS = $(BIN_DIR)/main.o #$(pathsubst %, $(OBJ_DIR)/%, $(OBJECT_NAMES))
 TARGET = $(BIN_DIR)/main
 # Flags
-CFLAGS = -w $(shell sdl2-config --cflags) -lm -lpthread -g
+CFLAGS = -w $(shell sdl2-config --cflags) -lm -lpthread -g  -Wall -Wextra
 LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf $(shell sdl2-config --libs)
 CC = gcc
 $(TARGET): $(SOURCES)

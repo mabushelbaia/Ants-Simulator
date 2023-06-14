@@ -8,19 +8,22 @@ Ant *ant;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 bool started = false;
-const int SCREEN_WIDTH = 1920/2;
-const int SCREEN_HEIGHT = 1080/2;
+const int SCREEN_WIDTH = 1920 / 2;
+const int SCREEN_HEIGHT = 1080 / 2;
 const int ANT_SIZE = 10;
 const float bounce[2] = {PI - PI / 4, PI + PI / 4};
-bool readConstants(char * file_name);
-int main(int argc, char * argv[]) {
+bool readConstants(char *file_name);
+int main(int argc, char *argv[])
+{
 
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		printf("Usage: %s <filename>\n", argv[0]);
 		exit(1);
 	}
 	bool status = readConstants(argv[1]);
-	if (!status) {
+	if (!status)
+	{
 		printf("Error: could not read constants from file %s\n", argv[1]);
 		exit(1);
 	}
@@ -28,7 +31,7 @@ int main(int argc, char * argv[]) {
 	printf("FOOD_DELAY: %d\n", FOOD_DELAY);
 	printf("SPEED: %d\n", SPEED);
 	srand(getpid() + time(NULL));
-	atexit(shutdown);
+	//atexit(shutdown);
 	status = initialize();
 	if (!status)
 		exit(1);
@@ -36,16 +39,22 @@ int main(int argc, char * argv[]) {
 	SDL_Event event;
 	unsigned int lastTick = SDL_GetTicks();
 	ant = malloc(NUM_ANTS * sizeof(Ant));
-	for (int i = 0; i < NUM_ANTS; ++i) {
+	for (int i = 0; i < NUM_ANTS; ++i)
+	{
 		ant[i] = makeAnt(ANT_SIZE);
 	}
-	//gcc file.c -o file -lpthread
+	// gcc file.c -o file -lpthread
 	initial_screen();
-	while (!quit) {
-		while (SDL_PollEvent(&event)) {
+	while (!quit)
+	{
+		while (SDL_PollEvent(&event))
+		{
 			if (event.type == SDL_QUIT)
-				quit = true;
-			if (event.type == SDL_KEYDOWN) {
+			{
+				return shutdown();
+			}
+			if (event.type == SDL_KEYDOWN)
+			{
 				if (event.key.keysym.sym == SDLK_SPACE)
 					started = true;
 			}
@@ -57,28 +66,34 @@ int main(int argc, char * argv[]) {
 			update(ant, NUM_ANTS, elapsed);
 		lastTick = curTick;
 	}
-
-	return 0;
 }
 
-bool readConstants(char * file_name) {
+bool readConstants(char *file_name)
+{
 	char path[256];
 	sprintf(path, "./data/input/%s", file_name);
-	FILE * file = fopen(path, "r");
-	if (!file) {
+	FILE *file = fopen(path, "r");
+	if (!file)
+	{
 		printf("Error: could not open file %s\n", path);
 		return false;
 	}
 	char line[256];
-	while (fgets(line, sizeof(line), file)) {
-		char * token = strtok(line, " ");
-		if (!strcmp(token, "NUMBER_ANTS")) {
+	while (fgets(line, sizeof(line), file))
+	{
+		char *token = strtok(line, " ");
+		if (!strcmp(token, "NUMBER_ANTS"))
+		{
 			token = strtok(NULL, " ");
 			NUM_ANTS = atoi(token);
-		} else if (!strcmp(token, "FOOD_DELAY")) {
+		}
+		else if (!strcmp(token, "FOOD_DELAY"))
+		{
 			token = strtok(NULL, " ");
 			FOOD_DELAY = atoi(token);
-		} else if (!strcmp(token, "SPEED")) {
+		}
+		else if (!strcmp(token, "SPEED"))
+		{
 			token = strtok(NULL, " ");
 			SPEED = atoi(token);
 		}

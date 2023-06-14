@@ -1,34 +1,5 @@
 #include "headers/ui.h"
-// Screen dimension constants
-#ifdef __GUI__
-int main(int argc, char *args[])
-{
-    srand(getpid() + time(NULL));
-    atexit(shutdown);
-    bool status = initialize();
-    if (!status)
-        exit(1);
-    bool quit = false;
-    SDL_Event event;
-    unsigned int lastTick = SDL_GetTicks();
-    for (int i = 0; i < NUM_ANTS; ++i)
-    {
-        ant[i] = makeAnt(ANT_SIZE);
-        // printf("Ant angle: %f\n", ant[i].angle * 180 / PI);
-    }
-    while (!quit)
-    {
-        ``m while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT)
-            quit = true;
-        unsigned int curTick = SDL_GetTicks();
-        unsigned int diff = curTick - lastTick;
-        float elapsed = diff / 3000.0;
-        update(elapsed);
-        lastTick = curTick;
-    }
-    return 0;
-}
-#endif
+volatile sig_atomic_t quit_game = false;
 bool initialize(void)
 {
     if (SDL_Init(SDL_INIT_VIDEO))
@@ -107,7 +78,7 @@ void initial_screen(void)
     // printf("Surface width: %d\n", surface->w);
     surface = TTF_RenderText_Solid(font, "ANTS SIMULATION", color);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_RenderCopy(renderer, texture, NULL, &(SDL_Rect){SCREEN_WIDTH/2 - surface->w / 2, dstrect.y + dstrect.h , surface->w, surface->h});
+    SDL_RenderCopy(renderer, texture, NULL, &(SDL_Rect){SCREEN_WIDTH / 2 - surface->w / 2, dstrect.y + dstrect.h, surface->w, surface->h});
     if (!texture)
     {
         printf("Error: could not create texture for text\n");
@@ -131,19 +102,25 @@ void update(Ant *ant, int NUM_ANTS, float elapsed)
     renderAnts(ant, NUM_ANTS);
     SDL_RenderPresent(renderer);
 }
-void shutdown(void)
+int shutdown(void)
 {
-    if (renderer == NULL)
-        SDL_DestroyRenderer(renderer);
-    if (window == NULL)
-        SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    window = NULL;
+    renderer = NULL;
+    if (!quit_game) {
+        quit_game = true;
+        printf("Quitting SDL...\n");
+        SDL_Quit();
+    }
+    return 0;
 }
 Ant makeAnt(int size)
 {
     const float SPEED = 500.0;
     Ant ant = {
-        .x = rand() % SCREEN_WIDTH / 2 + SCREEN_WIDTH / 4,
-        .y = rand() % SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 4,
+        .x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 10) + SCREEN_WIDTH / 10,
+        .y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 10) + SCREEN_HEIGHT / 10,
         .speed = SPEED,
         .angle = (rand() % 8 + 1) * PI / 4, // 45 * [1, 8] == [45, 90, 135, 180, 225, 270, 315, 360]
         .R = 0,
@@ -202,5 +179,3 @@ void renderAnts(Ant *ant, int count)
         renderAnt(&ant[i]);
     }
 }
-
-// Create a triangle in SDL
