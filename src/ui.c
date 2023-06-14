@@ -18,9 +18,8 @@ int main(int argc, char *args[])
     }
     while (!quit)
     {
-        while (SDL_PollEvent(&event))
-            if (event.type == SDL_QUIT)
-                quit = true;
+        ``m while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT)
+            quit = true;
         unsigned int curTick = SDL_GetTicks();
         unsigned int diff = curTick - lastTick;
         float elapsed = diff / 3000.0;
@@ -46,7 +45,82 @@ bool initialize(void)
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!window)
         return false;
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     return true;
+}
+
+void initial_screen(void)
+{
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    // Render an image here (background)
+    SDL_Surface *surface = IMG_Load("src/img/ant-svgrepo-com.png");
+    if (!surface)
+    {
+        printf("Error: could not load image\n%s\n", IMG_GetError());
+        return;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture)
+    {
+        printf("Error: could not create texture\n");
+        SDL_FreeSurface(surface);
+        return;
+    }
+
+    SDL_FreeSurface(surface);
+
+    // Resize the image to be 300x300
+    int size = 200;
+    SDL_Rect dstrect = {SCREEN_WIDTH / 2 - size / 2, SCREEN_HEIGHT / 3 - size / 2, size, size};
+
+    // Add text to the bottom of the screen in gray color
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+
+    SDL_Color color = {255 / 2, 255 / 2, 255 / 2}; // Set the color (white in this example)
+    TTF_Init();
+
+    TTF_Font *font = TTF_OpenFont("src/fonts/Roboto-Regular.ttf", 24);
+
+    if (!font)
+    {
+        printf("Error: could not load font\n");
+        SDL_DestroyTexture(texture);
+        return;
+    }
+    TTF_SetFontHinting(font, TTF_HINTING_NORMAL);
+    surface = TTF_RenderText_Solid(font, "press <space> to start!", color);
+    if (!surface)
+    {
+        printf("Error: could not render text\n");
+        SDL_DestroyTexture(texture);
+        TTF_CloseFont(font);
+        return;
+    }
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_RenderCopy(renderer, texture, NULL, &(SDL_Rect){SCREEN_WIDTH / 2 - surface->w / 2, SCREEN_HEIGHT - 2 * surface->h, surface->w, surface->h});
+    font = TTF_OpenFont("src/fonts/Kablammo-Regular-VariableFont_MORF.ttf", 60);
+    color = (SDL_Color){0, 0, 0};
+    // printf("Surface width: %d\n", surface->w);
+    surface = TTF_RenderText_Solid(font, "ANTS SIMULATION", color);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_RenderCopy(renderer, texture, NULL, &(SDL_Rect){SCREEN_WIDTH/2 - surface->w / 2, dstrect.y + dstrect.h , surface->w, surface->h});
+    if (!texture)
+    {
+        printf("Error: could not create texture for text\n");
+        SDL_FreeSurface(surface);
+        TTF_CloseFont(font);
+        return;
+    }
+
+    SDL_FreeSurface(surface);
+    SDL_RenderPresent(renderer);
+
+    SDL_DestroyTexture(texture);
+    TTF_CloseFont(font);
 }
 
 void update(Ant *ant, int NUM_ANTS, float elapsed)

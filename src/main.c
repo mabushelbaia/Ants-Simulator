@@ -7,12 +7,14 @@ int SPEED;
 Ant *ant;
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+bool started = false;
+const int SCREEN_WIDTH = 1920/2;
+const int SCREEN_HEIGHT = 1080/2;
 const int ANT_SIZE = 10;
 const float bounce[2] = {PI - PI / 4, PI + PI / 4};
 bool readConstants(char * file_name);
 int main(int argc, char * argv[]) {
+
 	if (argc < 2) {
 		printf("Usage: %s <filename>\n", argv[0]);
 		exit(1);
@@ -37,15 +39,22 @@ int main(int argc, char * argv[]) {
 	for (int i = 0; i < NUM_ANTS; ++i) {
 		ant[i] = makeAnt(ANT_SIZE);
 	}
+	//gcc file.c -o file -lpthread
+	initial_screen();
 	while (!quit) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT)
 				quit = true;
+			if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_SPACE)
+					started = true;
+			}
 		}
 		unsigned int curTick = SDL_GetTicks();
 		unsigned int diff = curTick - lastTick;
 		float elapsed = diff / 3000.0;
-		update(ant, NUM_ANTS, elapsed);
+		if (started)
+			update(ant, NUM_ANTS, elapsed);
 		lastTick = curTick;
 	}
 

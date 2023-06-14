@@ -1,6 +1,5 @@
 # Directories
-BIN_DIR = ./build/bin
-OBJ_DIR = ./build/obj
+BIN_DIR = ./build/
 SRC_DIR = ./src
 # Sources
 SOURCES = $(SRC_DIR)/main.c \
@@ -10,23 +9,16 @@ SOURCES = $(SRC_DIR)/main.c \
 # OBJECTS = $(BIN_DIR)/main.o #$(pathsubst %, $(OBJ_DIR)/%, $(OBJECT_NAMES))
 TARGET = $(BIN_DIR)/main
 # Flags
-WFLAGS = -Wall -Wshadow #Werror shows warrning as errors, -Wextra
-UIFLAGS = `sdl2-config --libs --cflags` -ggdb3 -O0 --std=c99 -Wall -lm -g
+CFLAGS = -w $(shell sdl2-config --cflags) -lm -lpthread -g
+LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf $(shell sdl2-config --libs)
 CC = gcc
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(UIFLAGS) -o $@ $^
 $(TARGET): $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(CC) $(UIFLAGS) -o $@ $^
-.PHONY: all clean run gui
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+.PHONY: run clean
 # run: $(TARGET)
 # 	$(TARGET)
-all: $(TARGET)
+run: $(TARGET)
+	$(TARGET) input.txt
 clean:
-	@rm -r $(OBJ_DIR)/
-	@rm -r  $(BIN_DIR)/
-gui: 
-	@mkdir -p build/bin
-	$(CC) $(UIFLAGS) $(SRC_DIR)/ui.c -o $(BIN_DIR)/ui
-	$(BIN_DIR)/ui
+	@rm -r  $(BIN_DIR)/*

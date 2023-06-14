@@ -2,6 +2,8 @@
 #define UI_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
@@ -34,6 +36,7 @@ void renderAnt(const Ant *ant);
 void updateAnt(Ant *ant, float elapsed);
 void updateAnts(Ant *ants, int count, float elapsed);
 void renderAnts(Ant *ants, int count);
+void initial_screen(void);
 Ant makeAnt(int size);
 
 #endif
