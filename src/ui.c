@@ -94,12 +94,14 @@ void initial_screen(void)
     TTF_CloseFont(font);
 }
 
-void update(Ant *ant, int NUM_ANTS, float elapsed)
+void update(Ant *ant, Food *food, int NUM_ANTS)
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-    updateAnts(ant, NUM_ANTS, elapsed);
+    // updateAnts(ant, NUM_ANTS, elapsed);
     renderAnts(ant, NUM_ANTS);
+    if (food != NULL)
+        renderFood(food);
     SDL_RenderPresent(renderer);
 }
 int shutdown(void)
@@ -108,25 +110,26 @@ int shutdown(void)
     SDL_DestroyWindow(window);
     window = NULL;
     renderer = NULL;
-    if (!quit_game) {
+    if (!quit_game)
+    {
         quit_game = true;
         printf("Quitting SDL...\n");
         SDL_Quit();
     }
     return 0;
 }
-Ant makeAnt(int size)
+Ant makeAnt(int size, int SPEED, int id)
 {
-    const float SPEED = 500.0;
     Ant ant = {
         .x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 10) + SCREEN_WIDTH / 10,
         .y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 10) + SCREEN_HEIGHT / 10,
-        .speed = SPEED,
+        .speed = (float)SPEED,
         .angle = (rand() % 8 + 1) * PI / 4, // 45 * [1, 8] == [45, 90, 135, 180, 225, 270, 315, 360]
         .R = 0,
         .G = 0,
         .B = 0,
         .A = 255,
+        .ID = id,
     };
     return ant;
 }
@@ -142,11 +145,37 @@ void renderAnt(const Ant *ant)
     SDL_SetRenderDrawColor(renderer, ant->R, ant->G, ant->B, ant->A);
     SDL_RenderFillRect(renderer, &rect);
 }
-
-void updateAnt(Ant *ant, float elapsed)
+void renderFood(const Food *Food)
 {
-    ant->x += ant->speed * cos(ant->angle) * elapsed;
-    ant->y += ant->speed * sin(ant->angle) * elapsed;
+    SDL_Rect rect = {
+        .x = Food->x - FOOD_SIZE / 2,
+        .y = Food->y - FOOD_SIZE / 2,
+        .w = FOOD_SIZE,
+        .h = FOOD_SIZE,
+    };
+    SDL_SetRenderDrawColor(renderer, Food->R, Food->G, Food->B, Food->A);
+    SDL_RenderFillRect(renderer, &rect);
+}
+void updateAnt(Ant *ant, Food *food)
+{
+    if (ant->ID == 0)
+    {
+        float dx = food[0].x - ant->x;
+        float dy = food[0].y - ant->y;
+        float distance = sqrt(dx * dx + dy * dy);
+        if (distance < FOOD_DETECTION_RADIUS)
+            ant->angle = atan2(dy, dx);
+        if (distance < 30) {
+            ant->speed = 0;
+        }
+        printf("Distance: %f\n", distance);
+        ant->R = 255;
+        ant->G = 0;
+        ant->B = 255;
+
+    }
+    ant->x += ant->speed * cos(ant->angle);
+    ant->y += ant->speed * sin(ant->angle);
     if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)
     {
         if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH)
@@ -165,13 +194,6 @@ void updateAnt(Ant *ant, float elapsed)
     }
 }
 
-void updateAnts(Ant *ant, int count, float elapsed)
-{
-    for (int i = 0; i < count; ++i)
-    {
-        updateAnt(&ant[i], elapsed);
-    }
-}
 void renderAnts(Ant *ant, int count)
 {
     for (int i = 0; i < count; ++i)

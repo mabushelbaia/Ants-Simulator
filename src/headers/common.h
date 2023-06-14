@@ -13,6 +13,18 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <math.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
+#include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <pthread.h>
+
 // Macros
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
