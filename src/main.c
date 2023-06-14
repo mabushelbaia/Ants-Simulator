@@ -1,7 +1,16 @@
 #include "headers/common.h"
-int NUMBER_ANTS;
+#include "SDL2/SDL.h"
+#include "headers/ui.h"
+int NUM_ANTS;
 int FOOD_DELAY;
 int SPEED;
+Ant *ant;
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const int ANT_SIZE = 10;
+const float bounce[2] = {PI - PI / 4, PI + PI / 4};
 bool readConstants(char * file_name);
 int main(int argc, char * argv[]) {
 	if (argc < 2) {
@@ -13,9 +22,35 @@ int main(int argc, char * argv[]) {
 		printf("Error: could not read constants from file %s\n", argv[1]);
 		exit(1);
 	}
+	printf("NUMBER_ANTS: %d\n", NUM_ANTS);
+	printf("FOOD_DELAY: %d\n", FOOD_DELAY);
+	printf("SPEED: %d\n", SPEED);
+	srand(getpid() + time(NULL));
+	atexit(shutdown);
+	status = initialize();
+	if (!status)
+		exit(1);
+	bool quit = false;
+	SDL_Event event;
+	unsigned int lastTick = SDL_GetTicks();
+	ant = malloc(NUM_ANTS * sizeof(Ant));
+	for (int i = 0; i < NUM_ANTS; ++i) {
+		ant[i] = makeAnt(ANT_SIZE);
+	}
+	while (!quit) {
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT)
+				quit = true;
+		}
+		unsigned int curTick = SDL_GetTicks();
+		unsigned int diff = curTick - lastTick;
+		float elapsed = diff / 3000.0;
+		update(ant, NUM_ANTS, elapsed);
+		lastTick = curTick;
+	}
+
 	return 0;
 }
-
 
 bool readConstants(char * file_name) {
 	char path[256];
@@ -30,7 +65,7 @@ bool readConstants(char * file_name) {
 		char * token = strtok(line, " ");
 		if (!strcmp(token, "NUMBER_ANTS")) {
 			token = strtok(NULL, " ");
-			NUMBER_ANTS = atoi(token);
+			NUM_ANTS = atoi(token);
 		} else if (!strcmp(token, "FOOD_DELAY")) {
 			token = strtok(NULL, " ");
 			FOOD_DELAY = atoi(token);
