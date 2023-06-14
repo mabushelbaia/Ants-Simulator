@@ -98,7 +98,7 @@ void update(Ant *ant, int NUM_ANTS, float elapsed)
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-    //updateAnts(ant, NUM_ANTS, elapsed);
+    updateAnts(ant, NUM_ANTS, elapsed);
     renderAnts(ant, NUM_ANTS);
     SDL_RenderPresent(renderer);
 }
