@@ -8,6 +8,7 @@ typedef struct Ant
     float y;
     float speed;
     float angle;
+    bool eaten;
     int R, G, B, A;
 } Ant;
 typedef struct Food
@@ -15,6 +16,8 @@ typedef struct Food
     float x;
     float y;
     int portionts;
+    pthread_mutex_t lock;
+    pthread_cond_t cond;
     int R, G, B, A;
 } Food;
 // Globals
@@ -32,15 +35,12 @@ extern int PHERMONE_DETECTION_RADIUS;
 extern int SIMULATION_DELAY;
 extern int PRESENT_FOOD;
 extern const float bounce[2];
-extern pthread_mutex_t *locks;
-extern pthread_cond_t *food_ready;
 // Functions
 bool initialize(void);
-void update(Ant *ant, Food *food, int NUM_ANTS);
+void update(Ant *ant, Food *food);
 int shutdown(void);
 void renderAnt(const Ant *ant);
 void updateAnt(Ant *ant, Food *food);
-void renderAnts(Ant *ants, int count);
 void renderFood(const Food *food);
 void initial_screen(void);
 Ant makeAnt(int size, int speed, int id);

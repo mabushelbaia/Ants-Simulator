@@ -94,12 +94,15 @@ void initial_screen(void)
     TTF_CloseFont(font);
 }
 
-void update(Ant *ant, Food *food, int NUM_ANTS)
+void update(Ant *ant, Food *food)
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     // updateAnts(ant, NUM_ANTS, elapsed);
-    renderAnts(ant, NUM_ANTS);
+    for (int i = 0; i < NUM_ANTS; ++i)
+    {
+        renderAnt(&ant[i]);
+    }
     if (food != NULL)
         renderFood(food);
     SDL_RenderPresent(renderer);
@@ -130,6 +133,7 @@ Ant makeAnt(int size, int SPEED, int id)
         .B = 0,
         .A = 255,
         .ID = id,
+        .eaten=false,
     };
     return ant;
 }
@@ -163,67 +167,68 @@ void updateAnt(Ant *ant, Food *food)
 {
     int min_distance = INT_MAX;
     int min_distance_index = -1;
-    for (int i = 0; i < PRESENT_FOOD; i++)
+    if (food != NULL)
     {
-        float dx = food[i].x - ant->x;
-        float dy = food[i].y - ant->y;
-        float distance = sqrt(dx * dx + dy * dy);
-        if (distance < min_distance)
+        for (int i = 0; i < PRESENT_FOOD; i++)
         {
-            min_distance = distance;
-            min_distance_index = i;
+            float dx = food[i].x - ant->x;
+            float dy = food[i].y - ant->y;
+            float distance = sqrt(dx * dx + dy * dy);
+            if (distance < min_distance)
+            {
+                min_distance = distance;
+                min_distance_index = i;
+            }
         }
-    }
-    float dx = food[min_distance_index].x - ant->x;
-    float dy = food[min_distance_index].y - ant->y;
-    // float distance = sqrt(dx * dx + dy * dy);
-    // printf("Min distance: %d\n", min_distance);
-    if (min_distance < FOOD_DETECTION_RADIUS)
-    {
-        ant->angle = atan2(dy, dx);
-        ant->R = 255;
-        ant->G = 0;
-        ant->B = 255 / 2;
-        if (min_distance <= FOOD_SIZE)
+
+        float dx = food[min_distance_index].x - ant->x;
+        float dy = food[min_distance_index].y - ant->y;
+
+        if (min_distance < FOOD_DETECTION_RADIUS)
         {
-            ant->speed = 0;
+            ant->angle = atan2(dy, dx);
             ant->R = 255;
             ant->G = 0;
-            ant->B = 0;
-            pthread_mutex_lock(&locks[min_distance_index]);
-            food[min_distance_index].portionts -=1;
-            if (food[min_distance_index].portionts == 0) {
-                printf("Finished Eating\n");
-                sleep(1);
+            ant->B = 255 / 2;
+            if (min_distance <= FOOD_SIZE)
+            {
+                ant->R = 255;
+                ant->G = 0;
+                ant->B = 0;
+                ant->speed = 0;
             }
-            pthread_mutex_unlock(&locks[min_distance_index]);
+            if (!ant->eaten)
+            {
+                pthread_mutex_lock(&food[min_distance_index].lock);
+                if (food[min_distance_index].portionts == 0) {
+                    printf("Meow Meow NIGGA, FOOD IS OUT!\n");
+                    // TO-DO Remove food! and give ants thier speed back;
+                } else{
+                    printf("%d\n",food[min_distance_index].portionts--);
+                    ant->eaten = true;
+                }
+                pthread_mutex_unlock(&food[min_distance_index].lock);
+                
+            }
         }
-    }
-    // printf("Distance: %f\n", distance);
-    ant->x += ant->speed * cos(ant->angle);
-    ant->y += ant->speed * sin(ant->angle);
-    if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)
-    {
-        if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH)
-            ant->x = SCREEN_WIDTH - ANT_SIZE / 2;
-        else if (ant->x - ANT_SIZE / 2 <= 0)
-            ant->x = ANT_SIZE / 2;
-        ant->angle = ant->angle + bounce[rand() % 2];
-    }
-    if (ant->y + ANT_SIZE / 2 >= SCREEN_HEIGHT || ant->y - ANT_SIZE / 2 <= 0)
-    {
-        if (ant->y + ANT_SIZE / 2 >= SCREEN_HEIGHT)
-            ant->y = SCREEN_HEIGHT - ANT_SIZE / 2;
-        else if (ant->y - ANT_SIZE / 2 <= 0)
-            ant->y = ANT_SIZE / 2;
-        ant->angle = ant->angle + bounce[rand() % 2];
-    }
-}
-
-void renderAnts(Ant *ant, int count)
-{
-    for (int i = 0; i < count; ++i)
-    {
-        renderAnt(&ant[i]);
+        // printf("Distance: %f\n", distance);
+        ant->x += ant->speed * cos(ant->angle);
+        ant->y += ant->speed * sin(ant->angle);
+        if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)
+        {
+            if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH)
+                ant->x = SCREEN_WIDTH - ANT_SIZE / 2;
+            else if (ant->x - ANT_SIZE / 2 <= 0)
+                ant->x = ANT_SIZE / 2;
+            ant->angle = ant->angle + bounce[rand() % 2];
+        }
+        if (ant->y + ANT_SIZE / 2 >= SCREEN_HEIGHT || ant->y - ANT_SIZE / 2 <= 0)
+        {
+            if (ant->y + ANT_SIZE / 2 >= SCREEN_HEIGHT)
+                ant->y = SCREEN_HEIGHT - ANT_SIZE / 2;
+            else if (ant->y - ANT_SIZE / 2 <= 0)
+                ant->y = ANT_SIZE / 2;
+            ant->angle = ant->angle + bounce[rand() % 2];
+        }
     }
 }
