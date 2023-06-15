@@ -4,31 +4,35 @@ A simple structre I use for my c projects.
 
 ## Directory Structure
 ```bash
-.
-├──📁 build
-│   └── executable-files
-├──📁 data
-│  ├──📁 input
+├── build
+│  └── main
+├── data
+│  ├── input
 │  │  └── input.txt
-│  └──📁 output
+│  └── output
 │     └── output.txt
-├──📁 docs
-│   ├── examples.md
-│   └── install.md
-├──📁 src
-│   ├──📁 gui
-│   │  └── interface.c
-│   ├──📁 headers
-│   │  └── main.h
-│   └── main.c
+├── docs
+│  ├── examples.md
+│  ├── install.md
+│  └── project3_threads.pdf
+├── src
+│  ├── fonts
+│  │  ├── Kablammo-Regular-VariableFont_MORF.ttf
+│  │  └── Roboto-Regular.ttf
+│  ├── headers
+│  │  ├── common.h
+│  │  ├── main.h
+│  │  └── ui.h
+│  ├── img
+│  │  └── ant-svgrepo-com.png
+│  ├── main.c
+│  └── ui.c
 ├── Makefile
-├── README.md
-└── .gitignore
-
+└── README.md
 ```
 
 ## TODO
 - [x] Makefile
-- [ ] Threads
+- [X] Threads
 - [ ] Food
 - [ ] Mutex

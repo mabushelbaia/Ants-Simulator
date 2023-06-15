@@ -145,37 +145,52 @@ void renderAnt(const Ant *ant)
     SDL_SetRenderDrawColor(renderer, ant->R, ant->G, ant->B, ant->A);
     SDL_RenderFillRect(renderer, &rect);
 }
-void renderFood(const Food *Food)
+void renderFood(const Food *food)
 {
-    SDL_Rect rect = {
-        .x = Food->x - FOOD_SIZE / 2,
-        .y = Food->y - FOOD_SIZE / 2,
-        .w = FOOD_SIZE,
-        .h = FOOD_SIZE,
-    };
-    SDL_SetRenderDrawColor(renderer, Food->R, Food->G, Food->B, Food->A);
-    SDL_RenderFillRect(renderer, &rect);
+    for (int i = 0; i < PRESENT_FOOD; i++)
+    {
+        SDL_Rect rect = {
+            .x = food[i].x - FOOD_SIZE / 2,
+            .y = food[i].y - FOOD_SIZE / 2,
+            .w = FOOD_SIZE,
+            .h = FOOD_SIZE,
+        };
+        SDL_SetRenderDrawColor(renderer, food[i].R, food[i].G, food[i].B, food[i].A);
+        SDL_RenderFillRect(renderer, &rect);
+    }
 }
 void updateAnt(Ant *ant, Food *food)
 {
-    if (ant->ID != -1)
+    int min_distance = INT_MAX;
+    int min_distance_index = -1;
+    for (int i = 0; i < PRESENT_FOOD; i++)
     {
-        float dx = food[0].x - ant->x;
-        float dy = food[0].y - ant->y;
+        float dx = food[i].x - ant->x;
+        float dy = food[i].y - ant->y;
         float distance = sqrt(dx * dx + dy * dy);
-        if (distance < FOOD_DETECTION_RADIUS)
+        if (distance < min_distance)
         {
-            ant->angle = atan2(dy, dx);
-            ant->R = 255;
-            ant->G = 0;
-            ant->B = 255;
+            min_distance = distance;
+            min_distance_index = i;
         }
-        if (distance < 30)
-        {
-            ant->speed = 0;
-        }
-        //printf("Distance: %f\n", distance);
     }
+    float dx = food[min_distance_index].x - ant->x;
+    float dy = food[min_distance_index].y - ant->y;
+    //float distance = sqrt(dx * dx + dy * dy);
+    //printf("Min distance: %d\n", min_distance);
+    if (min_distance < FOOD_DETECTION_RADIUS) {
+        ant->angle = atan2(dy, dx);
+        ant-> R = 255;
+        ant-> G = 0;
+        ant-> B = 255/2;
+        if (min_distance <= FOOD_SIZE) {
+            ant->speed = 0;
+            ant-> R = 255;
+            ant-> G = 0;
+            ant-> B = 0;
+        }
+    }
+    // printf("Distance: %f\n", distance);
     ant->x += ant->speed * cos(ant->angle);
     ant->y += ant->speed * sin(ant->angle);
     if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)

@@ -6,6 +6,7 @@ int SPEED = 1;
 int FOOD_DETECTION_RADIUS = 10;
 int PHERMONE_DETECTION_RADIUS = 10;
 int SIMULATION_TIME = 1;
+int PRESENT_FOOD = 3;
 bool threads_start = false;
 void create_threads();
 int main(int argc, char *argv[])
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
 	// Create 'NUM_ANTS' threads each thread should run the 'updateAnt' function
 	// and each thread should be passed a unique 'Ant' struct
 	ant = malloc(NUM_ANTS * sizeof(Ant));
-	food = malloc(sizeof(Food));
+	food = malloc(sizeof(Food) * PRESENT_FOOD);
 	run_gui();
 	// gcc file.c -o file -lpthread
 	return 0;
@@ -72,7 +73,8 @@ void readConstants(char *file_name)
 		{
 			token = strtok(NULL, " ");
 			PHERMONE_DETECTION_RADIUS = atoi(token);
-		}else if (!strcmp(token, "SIMULATION_TIME"))
+		}
+		else if (!strcmp(token, "SIMULATION_TIME"))
 		{
 			token = strtok(NULL, " ");
 			SIMULATION_TIME = atoi(token);
@@ -145,11 +147,14 @@ void create_threads()
 	{
 		pthread_create(&thread[i], NULL, updateAnt_thread, (void *)&ant[i]);
 	}
-	food[0].R = 255;
-	food[0].G = 0;
-	food[0].B = 0;
-	food[0].A = 255;
-	food[0].size = FOOD_SIZE;
-	food[0].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 10) + SCREEN_WIDTH / 10;
-	food[0].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 10) + SCREEN_HEIGHT / 10;
+	for (int i = 0; i < PRESENT_FOOD; ++i)
+	{
+		food[i].G = rand() % 255;
+		food[i].B = rand() % 255;
+		food[i].R = rand() % 255;
+		food[i].A = 255;
+		food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH /5) + SCREEN_WIDTH / 5;
+		food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 5) + SCREEN_HEIGHT / 5;
+		food[i].size = FOOD_SIZE;
+	}
 }
