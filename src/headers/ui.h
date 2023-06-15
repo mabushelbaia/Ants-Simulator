@@ -14,7 +14,7 @@ typedef struct Food
 {
     float x;
     float y;
-    int size;
+    int portionts;
     int R, G, B, A;
 } Food;
 // Globals
@@ -32,6 +32,8 @@ extern int PHERMONE_DETECTION_RADIUS;
 extern int SIMULATION_DELAY;
 extern int PRESENT_FOOD;
 extern const float bounce[2];
+extern pthread_mutex_t *locks;
+extern pthread_cond_t *food_ready;
 // Functions
 bool initialize(void);
 void update(Ant *ant, Food *food, int NUM_ANTS);

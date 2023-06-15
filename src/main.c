@@ -1,24 +1,17 @@
 #include "headers/ui.h"
 #include "headers/main.h"
-int NUM_ANTS = 10;
-int FOOD_DELAY = 1000;
-int SPEED = 1;
-int FOOD_DETECTION_RADIUS = 10;
-int PHERMONE_DETECTION_RADIUS = 10;
-int SIMULATION_TIME = 1;
-int PRESENT_FOOD = 3;
-bool threads_start = false;
-void create_threads();
+void clean(void);
 int main(int argc, char *argv[])
 {
+	atexit(clean);
 	printf("Food Detection Radius: %d\n", FOOD_DETECTION_RADIUS);
-	atexit(shutdown);
 	if (argc < 2)
 	{
 		printf("Usage: %s <filename>\n", argv[0]);
 		exit(1);
 	}
 	readConstants(argv[1]);
+	thread = malloc(sizeof(pthread_t) * NUM_ANTS);
 	printf("Displaying constants from file %s\n", argv[1]);
 	printf("NUMBER_ANTS: %d\n", NUM_ANTS);
 	printf("FOOD_DELAY: %d\n", FOOD_DELAY);
@@ -30,8 +23,15 @@ int main(int argc, char *argv[])
 	// and each thread should be passed a unique 'Ant' struct
 	ant = malloc(NUM_ANTS * sizeof(Ant));
 	food = malloc(sizeof(Food) * PRESENT_FOOD);
-	run_gui();
+	locks = malloc(sizeof(pthread_mutex_t) * PRESENT_FOOD);
+
+	for (int i = 0; i < PRESENT_FOOD; ++i)
+	{
+		pthread_mutex_init(&locks[i], NULL);
+	}
+	run_gui(thread);
 	// gcc file.c -o file -lpthread
+	// Destory the muxes
 	return 0;
 }
 
@@ -88,7 +88,7 @@ void readConstants(char *file_name)
 	fclose(file);
 }
 
-void run_gui()
+void run_gui(pthread_t *thread)
 {
 	bool status = initialize();
 	if (!status)
@@ -120,7 +120,7 @@ void run_gui()
 			if (!threads_start)
 			{
 				threads_start = true;
-				create_threads();
+				create_threads(thread);
 			}
 			update(ant, food, NUM_ANTS);
 		}
@@ -135,14 +135,13 @@ void *updateAnt_thread(void *args)
 	}
 	pthread_exit(NULL);
 }
-void create_threads()
+void create_threads(pthread_t *thread)
 {
 	printf("Starting threads...\n");
 	for (int i = 0; i < NUM_ANTS; ++i)
 	{
 		ant[i] = makeAnt(ANT_SIZE, SPEED, i);
 	}
-	pthread_t thread[NUM_ANTS + 1];
 	for (int i = 0; i < NUM_ANTS; ++i)
 	{
 		pthread_create(&thread[i], NULL, updateAnt_thread, (void *)&ant[i]);
@@ -153,8 +152,26 @@ void create_threads()
 		food[i].B = rand() % 255;
 		food[i].R = rand() % 255;
 		food[i].A = 255;
-		food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH /5) + SCREEN_WIDTH / 5;
+		food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 5) + SCREEN_WIDTH / 5;
 		food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 5) + SCREEN_HEIGHT / 5;
-		food[i].size = FOOD_SIZE;
+		food[i].portionts = rand() % 3;
 	}
+}
+void clean(void)
+{
+	printf("Clean Called");
+	for (int i = 0; i < NUM_ANTS; ++i)
+	{
+
+		pthread_join(thread[i], NULL);
+	}
+	for (int i = 0; i < PRESENT_FOOD; i++)
+	{
+		pthread_mutex_destroy(&locks[i]);
+	}
+	free(&locks);
+	free(ant);
+	free(food);
+	free(thread);
+	shutdown();
 }

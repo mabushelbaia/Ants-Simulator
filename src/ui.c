@@ -104,7 +104,7 @@ void update(Ant *ant, Food *food, int NUM_ANTS)
         renderFood(food);
     SDL_RenderPresent(renderer);
 }
-int shutdown(void)
+int shutdown()
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -176,18 +176,27 @@ void updateAnt(Ant *ant, Food *food)
     }
     float dx = food[min_distance_index].x - ant->x;
     float dy = food[min_distance_index].y - ant->y;
-    //float distance = sqrt(dx * dx + dy * dy);
-    //printf("Min distance: %d\n", min_distance);
-    if (min_distance < FOOD_DETECTION_RADIUS) {
+    // float distance = sqrt(dx * dx + dy * dy);
+    // printf("Min distance: %d\n", min_distance);
+    if (min_distance < FOOD_DETECTION_RADIUS)
+    {
         ant->angle = atan2(dy, dx);
-        ant-> R = 255;
-        ant-> G = 0;
-        ant-> B = 255/2;
-        if (min_distance <= FOOD_SIZE) {
+        ant->R = 255;
+        ant->G = 0;
+        ant->B = 255 / 2;
+        if (min_distance <= FOOD_SIZE)
+        {
             ant->speed = 0;
-            ant-> R = 255;
-            ant-> G = 0;
-            ant-> B = 0;
+            ant->R = 255;
+            ant->G = 0;
+            ant->B = 0;
+            pthread_mutex_lock(&locks[min_distance_index]);
+            food[min_distance_index].portionts -=1;
+            if (food[min_distance_index].portionts == 0) {
+                printf("Finished Eating\n");
+                sleep(1);
+            }
+            pthread_mutex_unlock(&locks[min_distance_index]);
         }
     }
     // printf("Distance: %f\n", distance);
