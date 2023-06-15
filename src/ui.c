@@ -158,21 +158,23 @@ void renderFood(const Food *Food)
 }
 void updateAnt(Ant *ant, Food *food)
 {
-    if (ant->ID == 0)
+    if (ant->ID != -1)
     {
         float dx = food[0].x - ant->x;
         float dy = food[0].y - ant->y;
         float distance = sqrt(dx * dx + dy * dy);
         if (distance < FOOD_DETECTION_RADIUS)
+        {
             ant->angle = atan2(dy, dx);
-        if (distance < 30) {
+            ant->R = 255;
+            ant->G = 0;
+            ant->B = 255;
+        }
+        if (distance < 30)
+        {
             ant->speed = 0;
         }
         printf("Distance: %f\n", distance);
-        ant->R = 255;
-        ant->G = 0;
-        ant->B = 255;
-
     }
     ant->x += ant->speed * cos(ant->angle);
     ant->y += ant->speed * sin(ant->angle);
