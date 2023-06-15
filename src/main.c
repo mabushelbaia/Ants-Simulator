@@ -170,7 +170,7 @@ void *createPortions(void *arg)
 			food[i].portionts = rand() % 5 + 3;
 			pthread_mutex_init(&food[i].lock, NULL);
 		}
-		sleep(FOOD_DELAY * 10);
+		sleep(FOOD_DELAY);
 	}
 	pthread_exit(NULL);
 }
