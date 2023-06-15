@@ -1,5 +1,11 @@
 #include "headers/ui.h"
 #include "headers/main.h"
+int NUM_ANTS = 10;
+int FOOD_DELAY = 1000;
+int SPEED = 1;
+int FOOD_DETECTION_RADIUS = 10;
+int PHERMONE_DETECTION_RADIUS = 10;
+int SIMULATION_TIME = 1;
 bool threads_start = false;
 void create_threads();
 int main(int argc, char *argv[])
@@ -11,7 +17,7 @@ int main(int argc, char *argv[])
 		printf("Usage: %s <filename>\n", argv[0]);
 		exit(1);
 	}
-	//readConstants(argv[1]);
+	readConstants(argv[1]);
 	printf("Displaying constants from file %s\n", argv[1]);
 	printf("NUMBER_ANTS: %d\n", NUM_ANTS);
 	printf("FOOD_DELAY: %d\n", FOOD_DELAY);
@@ -28,48 +34,57 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-// void readConstants(char *file_name)
-// {
-// 	char path[256];
-// 	sprintf(path, "./data/input/%s", file_name);
-// 	FILE *file = fopen(path, "r");
-// 	if (!file)
-// 	{
-// 		printf("Error: could not open file %s\n", path);
-// 		exit(1);
-// 	}
-// 	char line[256];
-// 	while (fgets(line, sizeof(line), file))
-// 	{
-// 		char *token = strtok(line, " ");
-// 		if (!strcmp(token, "NUMBER_ANTS"))
-// 		{
-// 			token = strtok(NULL, " ");
-// 			NUM_ANTS = atoi(token);
-// 		}
-// 		else if (!strcmp(token, "FOOD_DELAY"))
-// 		{
-// 			token = strtok(NULL, " ");
-// 			FOOD_DELAY = atoi(token);
-// 		}
-// 		else if (!strcmp(token, "SPEED"))
-// 		{
-// 			token = strtok(NULL, " ");
-// 			SPEED = atoi(token);
-// 		}
-// 		else if (!strcmp(token, "FOOD_DETECTION_RADIUS"))
-// 		{
-// 			token = strtok(NULL, " ");
-// 			FOOD_DETECTION_RADIUS = atoi(token);
-// 		}
-// 		else if (!strcmp(token, "PHERMONE_DETECTION_RADIUS"))
-// 		{
-// 			token = strtok(NULL, " ");
-// 			PHERMONE_DETECTION_RADIUS = atoi(token);
-// 		}
-// 	}
-// 	fclose(file);
-// }
+void readConstants(char *file_name)
+{
+	char path[256];
+	sprintf(path, "./data/input/%s", file_name);
+	FILE *file = fopen(path, "r");
+	if (!file)
+	{
+		printf("Error: could not open file %s\n", path);
+		exit(1);
+	}
+	char line[256];
+	while (fgets(line, sizeof(line), file))
+	{
+		char *token = strtok(line, " ");
+		if (!strcmp(token, "NUMBER_ANTS"))
+		{
+			token = strtok(NULL, " ");
+			NUM_ANTS = atoi(token);
+		}
+		else if (!strcmp(token, "FOOD_DELAY"))
+		{
+			token = strtok(NULL, " ");
+			FOOD_DELAY = atoi(token);
+		}
+		else if (!strcmp(token, "SPEED"))
+		{
+			token = strtok(NULL, " ");
+			SPEED = atoi(token);
+		}
+		else if (!strcmp(token, "FOOD_DETECTION_RADIUS"))
+		{
+			token = strtok(NULL, " ");
+			FOOD_DETECTION_RADIUS = atoi(token);
+		}
+		else if (!strcmp(token, "PHERMONE_DETECTION_RADIUS"))
+		{
+			token = strtok(NULL, " ");
+			PHERMONE_DETECTION_RADIUS = atoi(token);
+		}else if (!strcmp(token, "SIMULATION_TIME"))
+		{
+			token = strtok(NULL, " ");
+			SIMULATION_TIME = atoi(token);
+		}
+		else
+		{
+			printf("Error: invalid token %s\n", token);
+			exit(1);
+		}
+	}
+	fclose(file);
+}
 
 void run_gui()
 {

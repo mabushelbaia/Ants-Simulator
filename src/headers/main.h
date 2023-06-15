@@ -1,7 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 #include "common.h"
-#include "constants.h"
 Ant *ant;
 Food *food;
 SDL_Window *window = NULL;
@@ -13,7 +12,7 @@ const int ANT_SIZE = 10;
 const int FOOD_SIZE = 30;
 const float bounce[2] = {PI - PI / 4, PI + PI / 4};
 
-//void readConstants(char *file_name);
+void readConstants(char *file_name);
 
 void *updateAnt_thread(void *args);
 #endif

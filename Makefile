@@ -1,5 +1,5 @@
 # Directories
-BIN_DIR = ./build/
+BIN_DIR = ./build
 SRC_DIR = ./src
 # Sources
 SOURCES = $(SRC_DIR)/main.c \
@@ -7,7 +7,7 @@ SOURCES = $(SRC_DIR)/main.c \
  # use \ filename to append another files
 # OBJECT_NAMES = $(SOURCES:.c=" ")
 # OBJECTS = $(BIN_DIR)/main.o #$(pathsubst %, $(OBJ_DIR)/%, $(OBJECT_NAMES))
-TARGET = $(BIN_DIR)/main
+TARGET = $(BIN_DIR)/main 
 # Flags
 CFLAGS = -w $(shell sdl2-config --cflags) -lm -lpthread -g  -Wall -Wextra
 LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf $(shell sdl2-config --libs)

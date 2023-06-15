@@ -174,7 +174,7 @@ void updateAnt(Ant *ant, Food *food)
         {
             ant->speed = 0;
         }
-        printf("Distance: %f\n", distance);
+        //printf("Distance: %f\n", distance);
     }
     ant->x += ant->speed * cos(ant->angle);
     ant->y += ant->speed * sin(ant->angle);

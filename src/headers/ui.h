@@ -24,11 +24,12 @@ extern const int SCREEN_WIDTH;
 extern const int SCREEN_HEIGHT;
 extern const int ANT_SIZE;
 extern const int FOOD_SIZE;
-extern const int NUM_ANTS;
-extern const int FOOD_DELAY;
-extern const int SPEED;
-extern const int FOOD_DETECTION_RADIUS;
-extern const int PHERMONE_DETECTION_RADIUS;
+extern  int NUM_ANTS;
+extern  int FOOD_DELAY;
+extern  int SPEED;
+extern  int FOOD_DETECTION_RADIUS;
+extern  int PHERMONE_DETECTION_RADIUS;
+extern  int SIMULATION_DELAY;
 extern const float bounce[2];
 // Functions
 bool initialize(void);
