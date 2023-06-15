@@ -3,21 +3,23 @@
 #include "common.h"
 typedef struct Ant
 {
-    int ID;
     float x;
     float y;
     float speed;
     float angle;
     bool eaten;
+    int ID;
     int R, G, B, A;
+    pthread_mutex_t lock;
 } Ant;
 typedef struct Food
 {
+    int id;
     float x;
     float y;
     int portionts;
     pthread_mutex_t lock;
-    pthread_cond_t cond;
+    int * eaten_by;
     int R, G, B, A;
 } Food;
 // Globals
@@ -43,6 +45,6 @@ void renderAnt(const Ant *ant);
 void updateAnt(Ant *ant, Food *food);
 void renderFood(const Food *food);
 void initial_screen(void);
-Ant makeAnt(int size, int speed, int id);
+Ant makeAnt(int size, int id);
 
 #endif

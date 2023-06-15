@@ -133,7 +133,7 @@ void create_threads(pthread_t *thread)
 	printf("Starting threads...\n");
 	for (int i = 0; i < NUM_ANTS; ++i)
 	{
-		ant[i] = makeAnt(ANT_SIZE, SPEED, i);
+		ant[i] = makeAnt(ANT_SIZE, i);
 	}
 	for (int i = 0; i < NUM_ANTS; ++i)
 	{
@@ -156,21 +156,27 @@ void clean(void)
 void *createPortions(void *arg)
 {
 	int current_size = PRESENT_FOOD;
+	int counter = 1071;
 	food = malloc(sizeof(Food) * PRESENT_FOOD);
 	while (running)
 	{
 		for (int i = 0; i < PRESENT_FOOD; ++i)
 		{
+			if (food[i].x == -1000 && food[i].y == -1000) {
+				
+			}
+			food[i].id = 0;
 			food[i].G = rand() % 255;
 			food[i].B = rand() % 255;
 			food[i].R = rand() % 255;
-			food[i].A = 255;
+			food[i].A = rand() % 125 + 125;
 			food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
 			food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
-			food[i].portionts = rand() % 5 + 3;
+			food[i].portionts = rand() % 3 + 1;
+			food[i].eaten_by = malloc(sizeof(int) * NUM_ANTS);
 			pthread_mutex_init(&food[i].lock, NULL);
 		}
-		sleep(FOOD_DELAY);
+		sleep(FOOD_DELAY * 100);
 	}
 	pthread_exit(NULL);
 }

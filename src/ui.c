@@ -121,7 +121,7 @@ int shutdown()
     }
     return 0;
 }
-Ant makeAnt(int size, int SPEED, int id)
+Ant makeAnt(int size, int id)
 {
     Ant ant = {
         .x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 10) + SCREEN_WIDTH / 10,
@@ -133,8 +133,10 @@ Ant makeAnt(int size, int SPEED, int id)
         .B = 0,
         .A = 255,
         .ID = id,
-        .eaten=false,
+        .eaten = false,
+        .lock = PTHREAD_MUTEX_INITIALIZER,
     };
+    pthread_mutex_init(&ant.lock, NULL);
     return ant;
 }
 
@@ -166,7 +168,7 @@ void renderFood(const Food *food)
 void updateAnt(Ant *ant, Food *food)
 {
     int min_distance = INT_MAX;
-    int min_distance_index = -1;
+    int index = -1;
     if (food != NULL)
     {
         for (int i = 0; i < PRESENT_FOOD; i++)
@@ -177,38 +179,40 @@ void updateAnt(Ant *ant, Food *food)
             if (distance < min_distance)
             {
                 min_distance = distance;
-                min_distance_index = i;
+                index = i;
             }
         }
 
-        float dx = food[min_distance_index].x - ant->x;
-        float dy = food[min_distance_index].y - ant->y;
+        float dx = food[index].x - ant->x;
+        float dy = food[index].y - ant->y;
 
         if (min_distance < FOOD_DETECTION_RADIUS)
         {
             ant->angle = atan2(dy, dx);
-            ant->R = 255;
-            ant->G = 0;
-            ant->B = 255 / 2;
             if (min_distance <= FOOD_SIZE)
             {
                 ant->R = 255;
                 ant->G = 0;
                 ant->B = 0;
                 ant->speed = 0;
+                food[index].eaten_by[food[index].id++] = ant->ID;
+
+                // printf("[S] Ant %d: %d\n", ant->food_id, food[index].id);
             }
             if (!ant->eaten)
             {
-                pthread_mutex_lock(&food[min_distance_index].lock);
-                if (food[min_distance_index].portionts == 0) {
-                    printf("Meow Meow NIGGA, FOOD IS OUT!\n");
-                    // TO-DO Remove food! and give ants thier speed back;
-                } else{
-                    printf("%d\n",food[min_distance_index].portionts--);
+                pthread_mutex_lock(&food[index].lock);
+                if (food[index].portionts > 0)
+                {
+                    printf("%d\n", food[index].portionts--);
                     ant->eaten = true;
                 }
-                pthread_mutex_unlock(&food[min_distance_index].lock);
-                
+                else
+                {
+                    food[index].x = -10000;
+                    food[index].y = -10000;
+                }
+                pthread_mutex_unlock(&food[index].lock);
             }
         }
         // printf("Distance: %f\n", distance);
