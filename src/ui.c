@@ -7,7 +7,7 @@ bool initialize(void)
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
-    window = SDL_CreateWindow("SDL ", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Ants Simulation", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == NULL)
     {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -26,7 +26,6 @@ void initial_screen(void)
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
-    // Render an image here (background)
     SDL_Surface *surface = IMG_Load("src/img/ant-svgrepo-com.png");
     if (!surface)
     {
@@ -43,15 +42,11 @@ void initial_screen(void)
     }
 
     SDL_FreeSurface(surface);
-
-    // Resize the image to be 300x300
     int size = 200;
     SDL_Rect dstrect = {SCREEN_WIDTH / 2 - size / 2, SCREEN_HEIGHT / 3 - size / 2, size, size};
-
-    // Add text to the bottom of the screen in gray color
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 
-    SDL_Color color = {255 / 2, 255 / 2, 255 / 2}; // Set the color (white in this example)
+    SDL_Color color = {255 / 2, 255 / 2, 255 / 2};
     TTF_Init();
 
     TTF_Font *font = TTF_OpenFont("src/fonts/Roboto-Regular.ttf", 24);
@@ -127,16 +122,15 @@ Ant makeAnt(int size, int id)
         .x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 10) + SCREEN_WIDTH / 10,
         .y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 10) + SCREEN_HEIGHT / 10,
         .speed = (float)SPEED,
-        .angle = (rand() % 8 + 1) * PI / 4, // 45 * [1, 8] == [45, 90, 135, 180, 225, 270, 315, 360]
+        .angle = (rand() % 8 + 1) * PI / 4, 
         .R = 0,
         .G = 0,
         .B = 0,
         .A = 255,
         .ID = id,
-        .eaten = false,
-        .lock = PTHREAD_MUTEX_INITIALIZER,
+        .ate = false,
+        .pheromone = 0,
     };
-    pthread_mutex_init(&ant.lock, NULL);
     return ant;
 }
 
@@ -155,14 +149,19 @@ void renderFood(const Food *food)
 {
     for (int i = 0; i < PRESENT_FOOD; i++)
     {
-        SDL_Rect rect = {
-            .x = food[i].x - FOOD_SIZE / 2,
-            .y = food[i].y - FOOD_SIZE / 2,
-            .w = FOOD_SIZE,
-            .h = FOOD_SIZE,
-        };
-        SDL_SetRenderDrawColor(renderer, food[i].R, food[i].G, food[i].B, food[i].A);
-        SDL_RenderFillRect(renderer, &rect);
+        for (int y = -FOOD_SIZE; y <= FOOD_SIZE; y++)
+        {
+            for (int x = -FOOD_SIZE; x <= FOOD_SIZE; x++)
+            {
+                if (x * x + y * y <= FOOD_SIZE * FOOD_SIZE)
+                {
+                    int drawX = food[i].x + x;
+                    int drawY = food[i].y + y;
+                    SDL_SetRenderDrawColor(renderer, food[i].R, food[i].G, food[i].B, food[i].A);
+                    SDL_RenderDrawPoint(renderer, drawX, drawY);
+                }
+            }
+        }
     }
 }
 void updateAnt(Ant *ant, Food *food)
@@ -189,9 +188,9 @@ void updateAnt(Ant *ant, Food *food)
         if (min_distance < FOOD_DETECTION_RADIUS)
         {
             ant->angle = atan2(dy, dx);
-            if (min_distance <= FOOD_SIZE)
+            if (min_distance - ANT_SIZE/2 <= FOOD_SIZE)
             {
-                if (!ant->eaten)
+                if (!ant->ate)
                 {
                     pthread_mutex_lock(&food[index].lock);
                     if (food[index].x == -1000 || food[index].y == -1000)
@@ -201,7 +200,7 @@ void updateAnt(Ant *ant, Food *food)
                     else
                     {
                         ant->speed = 0;
-                        ant->eaten = true;
+                        ant->ate = true;
                         food[index].ants_count++;
                         if (food[index].ants_count == 1)
                         {
@@ -216,23 +215,25 @@ void updateAnt(Ant *ant, Food *food)
                         if (food[index].portionts > 0)
                         {
                             food[index].portionts--;
+                            /*
                             ant->R = 0;
                             ant->G = 250;
                             ant->B = 125;
+                            */
                         }
                         else
                         {
                             pthread_mutex_lock(&food_placment_lock);
                             food[index].x = -1000;
                             food[index].y = -1000;
-                            //PRESENT_FOOD--;
+                            // PRESENT_FOOD--;
                             for (int i = 0; i < food[index].ants_count; ++i)
                             {
                                 food[index].nearby_ants[i]->speed = SPEED;
                                 food[index].nearby_ants[i]->R = 0;
                                 food[index].nearby_ants[i]->G = 0;
                                 food[index].nearby_ants[i]->B = 0;
-                                food[index].nearby_ants[i]->eaten = false;
+                                food[index].nearby_ants[i]->ate = false;
                             }
                             pthread_mutex_unlock(&food_placment_lock);
                         }
@@ -241,7 +242,6 @@ void updateAnt(Ant *ant, Food *food)
                 }
             }
         }
-        // printf("Distance: %f\n", distance);
         ant->x += ant->speed * cos(ant->angle);
         ant->y += ant->speed * sin(ant->angle);
         if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)

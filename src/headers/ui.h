@@ -7,9 +7,10 @@
         float y;
         float speed;
         float angle;
-        bool eaten;
+        bool ate;
         int ID;
         int R, G, B, A;
+        float pheromone;
         pthread_mutex_t lock;
     } Ant;
     typedef struct Food

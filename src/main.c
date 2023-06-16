@@ -3,7 +3,7 @@
 bool cleaned = false;
 bool running = true;
 void clean(void);
-void *createPortions(void *arg);
+void *makeFood(void *arg);
 int main(int argc, char *argv[])
 {
 	if (argc < 2)
@@ -139,7 +139,7 @@ void create_threads(pthread_t *thread)
 	{
 		pthread_create(&thread[i], NULL, updateAnt_thread, (void *)&ant[i]);
 	}
-	pthread_create(&thread[NUM_ANTS], NULL, createPortions, NULL);
+	pthread_create(&thread[NUM_ANTS], NULL, makeFood, NULL);
 }
 void clean(void)
 {
@@ -153,7 +153,7 @@ void clean(void)
 	}
 }
 
-void *createPortions(void *arg)
+void *makeFood(void *arg)
 {
 	pthread_mutex_init(&food_placment_lock, NULL);
 	int INITIAL_SIZE = 3;
