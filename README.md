@@ -7,7 +7,7 @@ A thread based application to learn how to work with POSIX threads under linux.
 ![Simulation](assets/simulation.webp)<br>
 ---
 ## Running
-After insalling required libraries see [Installion Guide](docs/install.md) <br>
+<be>
 Compile 
 ```bash
 make
