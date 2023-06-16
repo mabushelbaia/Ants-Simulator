@@ -6,7 +6,7 @@
 
 bool initialize(void);
 void update(Ant *ant, Food *food);
-int shutdown(void);
+void shutdown(void);
 void renderAnt(const Ant *ant);
 void renderFood(const Food *food);
 void initial_screen(void);

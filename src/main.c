@@ -1,10 +1,12 @@
 #include "headers/main.h"
-bool cleaned = false;
+sig_atomic_t cleaned = false;
+sig_atomic_t quit = false;
 bool running = true;
 void clean(void);
-void *makeFood(void *arg);
+void *timer(void *args);
 int main(int argc, char *argv[])
 {
+	atexit(clean);
 	if (argc < 2)
 	{
 		printf("Usage: %s <filename>\n", argv[0]);
@@ -13,7 +15,7 @@ int main(int argc, char *argv[])
 	atexit(clean);
 	srand(getpid() + time(NULL));
 	readConstants(argv[1]);
-	thread = malloc(sizeof(pthread_t) * NUM_ANTS + 1);
+	thread = malloc(sizeof(pthread_t) * (NUM_ANTS + 2));
 	ant = malloc(NUM_ANTS * sizeof(Ant));
 
 	run_gui(thread);
@@ -88,7 +90,6 @@ void run_gui(pthread_t *thread)
 	bool status = initialize();
 	if (!status)
 		exit(1);
-	bool quit = false;
 	initial_screen();
 	SDL_Event event;
 	unsigned int lastTick = SDL_GetTicks();
@@ -99,7 +100,8 @@ void run_gui(pthread_t *thread)
 		{
 			if (event.type == SDL_QUIT)
 			{
-				clean();
+				quit = true;  // Set the flag to exit the loop naturally
+				break;        // Break out of the inner loop
 			}
 			if (event.type == SDL_KEYDOWN)
 			{
@@ -109,6 +111,9 @@ void run_gui(pthread_t *thread)
 				}
 			}
 		}
+
+		if (quit)
+			break;  // Break out of the outer loop if quit flag is set
 
 		if (started)
 		{
@@ -120,6 +125,8 @@ void run_gui(pthread_t *thread)
 			update(ant, food);
 		}
 	}
+
+	exit(0);
 }
 
 void create_threads(pthread_t *thread)
@@ -134,7 +141,9 @@ void create_threads(pthread_t *thread)
 		pthread_create(&thread[i], NULL, updateAnt_thread, (void *)&ant[i]);
 	}
 	pthread_create(&thread[NUM_ANTS], NULL, makeFood, NULL);
+	pthread_create(&thread[NUM_ANTS + 1], NULL, timer, NULL);
 }
+
 void clean(void)
 {
 	if (!cleaned)
@@ -145,6 +154,12 @@ void clean(void)
 		free(ant);
 		free(food);
 		shutdown();
-		exit(0);
 	}
+}
+
+void *timer(void *args)
+{
+	sleep(SIMULATION_TIME*5);
+	quit = true;
+	pthread_exit(NULL);
 }

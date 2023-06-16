@@ -102,7 +102,7 @@ void update(Ant *ant, Food *food)
         renderFood(food);
     SDL_RenderPresent(renderer);
 }
-int shutdown()
+void shutdown()
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -114,7 +114,6 @@ int shutdown()
         printf("Quitting SDL...\n");
         SDL_Quit();
     }
-    return 0;
 }
 
 void renderAnt(const Ant *ant)
