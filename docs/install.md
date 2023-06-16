@@ -1,6 +1,6 @@
 # Install.md
 
-## Clone the repositery
+## Clone the repository
 
 ```bash
 git clone https://github.com/mabushelbaia/RealTimeP3.git
