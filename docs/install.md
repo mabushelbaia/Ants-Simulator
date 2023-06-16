@@ -1,6 +1,13 @@
 # Installation.md
 
-## Required Libraries
+## Clone the repositery
+
+```bash
+git clone https://github.com/mabushelbaia/RealTimeP3.git
+cd RealTimeP3
+```
+
+## Install Required Libraries
 
 Ubuntu
 
@@ -16,4 +23,16 @@ Arch
 sudo pacman -S sdl2
 sudo pacman -S sdl2_ttf
 sudo pacman -S sdl2_image
+```
+
+## Compiling
+
+```
+make
+```
+
+## Compiling & Running
+
+```bash
+make run
 ```
