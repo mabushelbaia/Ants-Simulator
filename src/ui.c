@@ -1,5 +1,6 @@
 #include "headers/ui.h"
 volatile sig_atomic_t quit_game = false;
+bool visited = false;
 bool initialize(void)
 {
     if (SDL_Init(SDL_INIT_VIDEO))
@@ -93,7 +94,6 @@ void update(Ant *ant, Food *food)
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
-    // updateAnts(ant, NUM_ANTS, elapsed);
     for (int i = 0; i < NUM_ANTS; ++i)
     {
         renderAnt(&ant[i]);
@@ -122,7 +122,7 @@ Ant makeAnt(int size, int id)
         .x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 10) + SCREEN_WIDTH / 10,
         .y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 10) + SCREEN_HEIGHT / 10,
         .speed = (float)SPEED,
-        .angle = (rand() % 8 + 1) * PI / 4, 
+        .angle = (rand() % 8 + 1) * PI / 4,
         .R = 0,
         .G = 0,
         .B = 0,
@@ -131,6 +131,7 @@ Ant makeAnt(int size, int id)
         .ate = false,
         .pheromone = 0,
     };
+    pthread_mutex_init(&ant.lock, NULL);
     return ant;
 }
 
@@ -168,6 +169,7 @@ void updateAnt(Ant *ant, Food *food)
 {
     int min_distance = INT_MAX;
     int index = -1;
+    // printf("Ant %d Ph: %d\n", ant->ID, ant->pheromone);
     if (food != NULL)
     {
         for (int i = 0; i < PRESENT_FOOD; i++)
@@ -184,64 +186,92 @@ void updateAnt(Ant *ant, Food *food)
 
         float dx = food[index].x - ant->x;
         float dy = food[index].y - ant->y;
+
         if (min_distance < FOOD_DETECTION_RADIUS)
         {
-            ant->pheromone = 100 * exp(-0.00356674944  * min_distance);
-            printf("pheromone: %f\n", ant->pheromone);
             ant->angle = atan2(dy, dx);
-            if (min_distance - ANT_SIZE/2 <= FOOD_SIZE)
+            ant->pheromone = (int)100 * exp(-0.00356674944 * min_distance);
+            pthread_mutex_lock(&food[index].lock);
+            food[index].ants_count++;
+            if (food[index].ants_count == 1)
+            {
+                food[index].nearby_ants = malloc(sizeof(Ant *) * food[index].ants_count);
+                food[index].nearby_ants[0] = ant;
+            }
+            else if (food[index].ants_count > 1)
+            {
+                food[index].nearby_ants = realloc(food[index].nearby_ants, sizeof(Ant *) * food[index].ants_count);
+                food[index].nearby_ants[food[index].ants_count - 1] = ant;
+            }
+            pthread_mutex_unlock(&food[index].lock);
+            if (min_distance - ANT_SIZE / 2 <= FOOD_SIZE)
             {
                 if (!ant->ate)
                 {
-                    pthread_mutex_lock(&food[index].lock);
-                    if (food[index].x == -1000 || food[index].y == -1000)
+                    ant->speed = 0;
+                    ant->ate = true;
+                    if (food[index].portionts > 0)
                     {
-                        pthread_mutex_unlock(&food[index].lock);
-                    }
-                    else
-                    {
-                        ant->speed = 0;
-                        ant->ate = true;
-                        food[index].ants_count++;
-                        if (food[index].ants_count == 1)
-                        {
-                            food[index].nearby_ants = malloc(sizeof(Ant *) * food[index].ants_count);
-                            food[index].nearby_ants[0] = ant;
-                        }
-                        else if (food[index].ants_count > 1)
-                        {
-                            food[index].nearby_ants = realloc(food[index].nearby_ants, sizeof(Ant *) * food[index].ants_count);
-                            food[index].nearby_ants[food[index].ants_count - 1] = ant;
-                        }
-                        if (food[index].portionts > 0)
-                        {
-                            food[index].portionts--;
-                            /*
-                            ant->R = 0;
-                            ant->G = 250;
-                            ant->B = 125;
-                            */
-                        }
-                        else
-                        {
-                            pthread_mutex_lock(&food_placment_lock);
-                            food[index].x = -1000;
-                            food[index].y = -1000;
-                            for (int i = 0; i < food[index].ants_count; ++i)
-                            {
-                                food[index].nearby_ants[i]->speed = SPEED;
-                                food[index].nearby_ants[i]->R = 0;
-                                food[index].nearby_ants[i]->G = 0;
-                                food[index].nearby_ants[i]->B = 0;
-                                food[index].nearby_ants[i]->ate = false;
-                            }
-                            pthread_mutex_unlock(&food_placment_lock);
-                        }
-                        pthread_mutex_unlock(&food[index].lock);
+                        food[index].portionts--;
                     }
                 }
             }
         }
+
+        else
+        {
+            Ant *best_ant = NULL;
+            for (int i = 0; i < NUM_ANTS; ++i)
+            {
+                if (ant[i].ID == ant->ID || ant[i].ID > NUM_ANTS || ant[i].ID < 0)
+                {
+                    continue;
+                }
+                if (ant[i].pheromone > 0 && ant[i].pheromone < 100)
+                {
+                    if (best_ant == NULL)
+                    {
+                        best_ant = &ant[i];
+                    }
+                    else if (ant[i].pheromone > best_ant->pheromone)
+                    {
+                        best_ant = &ant[i];
+                    }
+                    else if (ant[i].pheromone == best_ant->pheromone)
+                    {
+                        int distance1 = sqrt((food[index].x - ant[i].x) * (food[index].x - ant[i].x) + (food[index].y - ant[i].y) * (food[index].y - ant[i].y));
+                        int distance2 = sqrt((food[index].x - best_ant->x) * (food[index].x - best_ant->x) + (food[index].y - best_ant->y) * (food[index].y - best_ant->y));
+                        if (distance1 < distance2)
+                        {
+                            best_ant = &ant[i];
+                        }
+                    }
+                }
+            }
+            if (best_ant != NULL)
+            {
+                int ants_distance = sqrt((ant->x - best_ant->x) * (ant->x - best_ant->x) + (ant->y - best_ant->y) * (ant->y - best_ant->y));
+                if (ants_distance < PHORMONE_FOLLOWING_RADIUS)
+                {
+                    ant->angle = atan2(best_ant->y - ant->y, best_ant->x - ant->x);
+                    ant->R = 255;
+                    ant->G = 125;
+                    ant->B = 0;
+                    printf("Ant %d following ant %d\n", ant->ID, best_ant->ID);
+                    printf("Ant %d pheromone %d\n", ant->ID, ant->pheromone);
+                    printf("Ant %d pheromone %d\n", best_ant->ID, best_ant->pheromone);
+                    best_ant->R = 255;
+                }
+                else
+                {
+                    ant->R = 0;
+                    ant->G = 0;
+                    ant->B = 0;
+                }
+            }
+            best_ant = NULL;
+        }
+
         ant->x += ant->speed * cos(ant->angle);
         ant->y += ant->speed * sin(ant->angle);
         if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)
