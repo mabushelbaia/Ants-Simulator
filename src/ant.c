@@ -193,11 +193,11 @@ void updateAnt(Ant *ant, Food *food)
                     float angle = atan2(y3 - ant->y, x3 - ant->x);
                     if (angle > ant->angle)
                     {
-                        ant->angle += PI / 36;
+                        ant->angle += PI / 72;
                     }
                     else if (angle < ant->angle)
                     {
-                        ant->angle -= PI / 36;
+                        ant->angle -= PI / 72;
                     }
                 }
             }

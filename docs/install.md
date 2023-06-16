@@ -13,8 +13,8 @@ Ubuntu
 
 ```bash
 sudo apt-get install libsdl2-dev
-sudo apt-get install libsdl2-ttf
-sudo apt-get install libsdl2-image
+sudo apt-get install libsdl2-ttf-dev
+sudo apt-get install libsdl2-image-dev
 ```
 
 Arch

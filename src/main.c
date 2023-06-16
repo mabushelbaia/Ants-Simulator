@@ -144,7 +144,6 @@ void clean(void)
 		free(thread);
 		free(ant);
 		free(food);
-		printf("Clean Called\n");
 		shutdown();
 		exit(0);
 	}
