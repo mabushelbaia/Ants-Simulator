@@ -34,5 +34,7 @@ A simple structre I use for my c projects.
 ## TODO
 - [x] Makefile
 - [X] Threads
-- [ ] Food
-- [ ] Mutex
+- [x] Food
+- [x] Mutex
+- [ ] Hermons
+- [ ] Improve Structure
