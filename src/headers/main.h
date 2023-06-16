@@ -18,6 +18,7 @@ int FOOD_DETECTION_RADIUS = 10;
 int PHERMONE_DETECTION_RADIUS = 10;
 int SIMULATION_TIME = 1;
 int PRESENT_FOOD = 3;
+pthread_mutex_t food_placment_lock = PTHREAD_MUTEX_INITIALIZER;
 bool threads_start = false;
 pthread_t * thread;
 void create_threads(pthread_t *thread);

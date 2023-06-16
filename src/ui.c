@@ -191,28 +191,54 @@ void updateAnt(Ant *ant, Food *food)
             ant->angle = atan2(dy, dx);
             if (min_distance <= FOOD_SIZE)
             {
-                ant->R = 255;
-                ant->G = 0;
-                ant->B = 0;
-                ant->speed = 0;
-                food[index].eaten_by[food[index].id++] = ant->ID;
-
-                // printf("[S] Ant %d: %d\n", ant->food_id, food[index].id);
-            }
-            if (!ant->eaten)
-            {
-                pthread_mutex_lock(&food[index].lock);
-                if (food[index].portionts > 0)
+                if (!ant->eaten)
                 {
-                    printf("%d\n", food[index].portionts--);
-                    ant->eaten = true;
+                    pthread_mutex_lock(&food[index].lock);
+                    if (food[index].x == -1000 || food[index].y == -1000)
+                    {
+                        pthread_mutex_unlock(&food[index].lock);
+                    }
+                    else
+                    {
+                        ant->speed = 0;
+                        ant->eaten = true;
+                        food[index].ants_count++;
+                        if (food[index].ants_count == 1)
+                        {
+                            food[index].nearby_ants = malloc(sizeof(Ant *) * food[index].ants_count);
+                            food[index].nearby_ants[0] = ant;
+                        }
+                        else if (food[index].ants_count > 1)
+                        {
+                            food[index].nearby_ants = realloc(food[index].nearby_ants, sizeof(Ant *) * food[index].ants_count);
+                            food[index].nearby_ants[food[index].ants_count - 1] = ant;
+                        }
+                        if (food[index].portionts > 0)
+                        {
+                            food[index].portionts--;
+                            ant->R = 0;
+                            ant->G = 250;
+                            ant->B = 125;
+                        }
+                        else
+                        {
+                            food[index].x = -1000;
+                            food[index].y = -1000;
+                            // pthread_mutex_lock(&food_placment_lock);
+                            // PRESENT_FOOD--;
+                            // pthread_mutex_unlock(&food_placment_lock);
+                            for (int i = 0; i < food[index].ants_count; ++i)
+                            {
+                                food[index].nearby_ants[i]->speed = SPEED;
+                                food[index].nearby_ants[i]->R = 0;
+                                food[index].nearby_ants[i]->G = 0;
+                                food[index].nearby_ants[i]->B = 0;
+                                food[index].nearby_ants[i]->eaten = false;
+                            }
+                        }
+                        pthread_mutex_unlock(&food[index].lock);
+                    }
                 }
-                else
-                {
-                    food[index].x = -10000;
-                    food[index].y = -10000;
-                }
-                pthread_mutex_unlock(&food[index].lock);
             }
         }
         // printf("Distance: %f\n", distance);

@@ -1,28 +1,29 @@
 #ifndef UI_H
 #define UI_H
 #include "common.h"
-typedef struct Ant
-{
-    float x;
-    float y;
-    float speed;
-    float angle;
-    bool eaten;
-    int ID;
-    int R, G, B, A;
-    pthread_mutex_t lock;
-} Ant;
-typedef struct Food
-{
-    int id;
-    float x;
-    float y;
-    int portionts;
-    pthread_mutex_t lock;
-    int * eaten_by;
-    int R, G, B, A;
-} Food;
-// Globals
+    typedef struct Ant
+    {
+        float x;
+        float y;
+        float speed;
+        float angle;
+        bool eaten;
+        int ID;
+        int R, G, B, A;
+        pthread_mutex_t lock;
+    } Ant;
+    typedef struct Food
+    {
+        int id;
+        float x;
+        float y;
+        int portionts;
+        pthread_mutex_t lock;
+        int ants_count;
+        Ant ** nearby_ants;
+        int R, G, B, A;
+    } Food;
+    // Globals
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern const int SCREEN_WIDTH;
@@ -37,6 +38,7 @@ extern int PHERMONE_DETECTION_RADIUS;
 extern int SIMULATION_DELAY;
 extern int PRESENT_FOOD;
 extern const float bounce[2];
+extern pthread_mutex_t food_placment_lock;
 // Functions
 bool initialize(void);
 void update(Ant *ant, Food *food);
