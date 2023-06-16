@@ -1,10 +1,15 @@
 # Ants Simulation
-A thread based application to learn how to work with POSIX threads under linux.
-![Simulation](https://github.com/mabushelbaia/Realtimep3/blob/main/assets/simulation.png?raw=true)
+
+## A thread based application to learn how to work with POSIX threads under linux.
+
+🔗 | [Project Statment](docs/project3_threads.pdf)
+
+![Simulation](assets/simulation.png)
 
 ## TODO
+
 - [x] Makefile
-- [X] Threads
+- [x] Threads
 - [x] Food
 - [x] Mutex
 - [ ] Steroids
