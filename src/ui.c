@@ -208,18 +208,49 @@ void updateAnt(Ant *ant, Food *food)
             {
                 if (!ant->ate)
                 {
-                    ant->speed = 0;
-                    ant->ate = true;
-                    if (food[index].portionts > 0)
+                    pthread_mutex_lock(&food[index].lock);
+                    if (food[index].x == INT_MAX || food[index].y == INT_MAX)
                     {
-                        food[index].portionts--;
+                        pthread_mutex_unlock(&food[index].lock);
+                    }
+                    else
+                    {
+                        ant->speed = 0;
+                        ant->ate = true;
+                        if (food[index].portionts > 0)
+                        {
+                            food[index].portionts--;
+                        }
+                        else
+                        {
+                            pthread_mutex_lock(&food_placment_lock);
+                            food[index].x = INT_MAX;
+                            food[index].y = INT_MAX;
+                            ant->pheromone = 0;
+                            for (int i = 0; i < food[index].ants_count; ++i)
+                            {
+                                pthread_mutex_lock(&food[index].nearby_ants[i]->lock);
+                                food[index].nearby_ants[i]->speed = SPEED;
+                                food[index].nearby_ants[i]->R = 0;
+                                food[index].nearby_ants[i]->G = 0;
+                                food[index].nearby_ants[i]->B = 0;
+                                food[index].nearby_ants[i]->ate = false;
+                                food[index].nearby_ants[i]->pheromone = 0;
+                                ant->speed = SPEED;
+                                ant->pheromone = 0;
+                                pthread_mutex_unlock(&food[index].nearby_ants[i]->lock);
+                            }
+                            pthread_mutex_unlock(&food_placment_lock);
+                        }
+                        pthread_mutex_unlock(&food[index].lock);
                     }
                 }
             }
         }
-
-        else
+        else if (min_distance > FOOD_DETECTION_RADIUS && min_distance < 3000)
         {
+
+            printf("I;m here distance %d\n" , min_distance);
             Ant *best_ant = NULL;
             for (int i = 0; i < NUM_ANTS; ++i)
             {
@@ -227,7 +258,7 @@ void updateAnt(Ant *ant, Food *food)
                 {
                     continue;
                 }
-                if (ant[i].pheromone > 0 && ant[i].pheromone < 100)
+                if (ant[i].pheromone > 20 && ant[i].pheromone < 100)
                 {
                     if (best_ant == NULL)
                     {
@@ -253,13 +284,10 @@ void updateAnt(Ant *ant, Food *food)
                 int ants_distance = sqrt((ant->x - best_ant->x) * (ant->x - best_ant->x) + (ant->y - best_ant->y) * (ant->y - best_ant->y));
                 if (ants_distance < PHORMONE_FOLLOWING_RADIUS)
                 {
-                    ant->angle = atan2(best_ant->y - ant->y, best_ant->x - ant->x);
+                    ant->angle = best_ant->angle;
                     ant->R = 255;
                     ant->G = 125;
                     ant->B = 0;
-                    printf("Ant %d following ant %d\n", ant->ID, best_ant->ID);
-                    printf("Ant %d pheromone %d\n", ant->ID, ant->pheromone);
-                    printf("Ant %d pheromone %d\n", best_ant->ID, best_ant->pheromone);
                     best_ant->R = 255;
                 }
                 else
@@ -271,7 +299,6 @@ void updateAnt(Ant *ant, Food *food)
             }
             best_ant = NULL;
         }
-
         ant->x += ant->speed * cos(ant->angle);
         ant->y += ant->speed * sin(ant->angle);
         if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)

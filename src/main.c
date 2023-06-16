@@ -134,7 +134,6 @@ void *updateAnt_thread(void *args)
 void create_threads(pthread_t *thread)
 {
 	printf("Starting threads...\n");
-	pthread_mutex_init(&ant_placment_lock, NULL);
 	for (int i = 0; i < NUM_ANTS; ++i)
 	{
 		ant[i] = makeAnt(ANT_SIZE, i);
@@ -151,38 +150,15 @@ void clean(void)
 	{
 		cleaned = true;
 		running = false;
+		free(thread);
+		free(ant);
+		free(food);
 		printf("Clean Called\n");
 		shutdown();
 		exit(0);
 	}
 }
-void *manageFood(void *arg)
-{
-	for (int i = 0; i < PRESENT_FOOD; ++i)
-		if (food[i].portionts <= 0) // remove food
-		{
-			pthread_mutex_destroy(&food[i].lock);
-			for (int index = 0; index < food[i].ants_count; index++)
-			{
-				food[i].x = -100;
-				food[i].y = -100;
-				food[i].nearby_ants[index]->speed = SPEED;
-				food[i].nearby_ants[index]->R = 0;
-				food[i].nearby_ants[index]->G = 0;
-				food[i].nearby_ants[index]->B = 0;
-				food[i].nearby_ants[index]->ate = false;
-				food[i].nearby_ants[index]->pheromone = 0;
-				ant->speed = SPEED;
-				ant->pheromone = 0;
-			}
-			for (int j = i; j < PRESENT_FOOD - 1; ++j)
-			{
-				food[j] = food[j + 1];
-			}
-			--PRESENT_FOOD;
-			food = realloc(food, sizeof(Food) * PRESENT_FOOD);
-		}
-}
+
 void *makeFood(void *arg)
 {
 	pthread_mutex_init(&food_placment_lock, NULL);
@@ -193,29 +169,26 @@ void *makeFood(void *arg)
 	while (running)
 	{
 		// check if a food portion is outside the screen then remove it from the food array
+		sleep(FOOD_DELAY);
 		pthread_mutex_lock(&food_placment_lock);
 		if (initial_setup)
 			initial_setup = false;
 		else
+			food = realloc(food, sizeof(Food) * (PRESENT_FOOD + INITIAL_SIZE));
+		for (int i = PRESENT_FOOD; i < PRESENT_FOOD + INITIAL_SIZE; ++i)
 		{
+			pthread_mutex_init(&food[i].lock, NULL);
+			food[i].G = rand() % 255;
+			food[i].B = rand() % 255;
+			food[i].R = rand() % 255;
+			food[i].A = rand() % 125 + 125;
+			food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
+			food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
+			food[i].portionts = 20;
+			food[i].ants_count = 0;
 		}
-		food = realloc(food, sizeof(Food) * (PRESENT_FOOD + INITIAL_SIZE));
+		PRESENT_FOOD += INITIAL_SIZE;
+		pthread_mutex_unlock(&food_placment_lock);
 	}
-
-	for (int i = PRESENT_FOOD; i < PRESENT_FOOD + INITIAL_SIZE; ++i)
-	{
-		pthread_mutex_init(&food[i].lock, NULL);
-		food[i].G = rand() % 255;
-		food[i].B = rand() % 255;
-		food[i].R = rand() % 255;
-		food[i].A = rand() % 125 + 125;
-		food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
-		food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
-		food[i].portionts = 3;
-		food[i].ants_count = 0;
-	}
-	PRESENT_FOOD += INITIAL_SIZE;
-	pthread_mutex_unlock(&food_placment_lock);
-}
-pthread_exit(NULL);
+	pthread_exit(NULL);
 }
