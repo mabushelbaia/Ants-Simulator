@@ -155,38 +155,34 @@ void clean(void)
 
 void *createPortions(void *arg)
 {
-	int INITIAL_SIZE = PRESENT_FOOD;
-	food = malloc(sizeof(Food) * PRESENT_FOOD);
-	for (int i = 0; i < INITIAL_SIZE; ++i)
-	{
-		food[i].G = rand() % 255;
-		food[i].B = rand() % 255;
-		food[i].R = rand() % 255;
-		food[i].A = rand() % 125 + 125;
-		food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
-		food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
-		food[i].portionts = rand() % 3 + 1;
-		food[i].ants_count = 0;
-		pthread_mutex_init(&food[i].lock, NULL);
-	}
-
+	pthread_mutex_init(&food_placment_lock, NULL);
+	int INITIAL_SIZE = 3;
+	PRESENT_FOOD = 0;
+	food = malloc(sizeof(Food) * INITIAL_SIZE);
+	bool initial_setup = true;
 	while (running)
 	{
-		food = realloc(food, sizeof(Food) * (PRESENT_FOOD + INITIAL_SIZE));
+		// check if a food portion is outside the screen then remove it from the food array
+		sleep(FOOD_DELAY);
+		pthread_mutex_lock(&food_placment_lock);
+		if (initial_setup)
+			initial_setup = false;
+		else
+			food = realloc(food, sizeof(Food) * (PRESENT_FOOD + INITIAL_SIZE));
 		for (int i = PRESENT_FOOD; i < PRESENT_FOOD + INITIAL_SIZE; ++i)
 		{
+			pthread_mutex_init(&food[i].lock, NULL);
 			food[i].G = rand() % 255;
 			food[i].B = rand() % 255;
 			food[i].R = rand() % 255;
 			food[i].A = rand() % 125 + 125;
 			food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
 			food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
-			food[i].portionts = rand() % (NUM_ANTS/ 5) + 1;
+			food[i].portionts = rand() % (NUM_ANTS / 10) + 1;
 			food[i].ants_count = 0;
-			pthread_mutex_init(&food[i].lock, NULL);
 		}
 		PRESENT_FOOD += INITIAL_SIZE;
-		sleep(FOOD_DELAY);
+		pthread_mutex_unlock(&food_placment_lock);
 	}
 	pthread_exit(NULL);
 }

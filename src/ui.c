@@ -222,11 +222,10 @@ void updateAnt(Ant *ant, Food *food)
                         }
                         else
                         {
+                            pthread_mutex_lock(&food_placment_lock);
                             food[index].x = -1000;
                             food[index].y = -1000;
-                            // pthread_mutex_lock(&food_placment_lock);
-                            // PRESENT_FOOD--;
-                            // pthread_mutex_unlock(&food_placment_lock);
+                            //PRESENT_FOOD--;
                             for (int i = 0; i < food[index].ants_count; ++i)
                             {
                                 food[index].nearby_ants[i]->speed = SPEED;
@@ -235,6 +234,7 @@ void updateAnt(Ant *ant, Food *food)
                                 food[index].nearby_ants[i]->B = 0;
                                 food[index].nearby_ants[i]->eaten = false;
                             }
+                            pthread_mutex_unlock(&food_placment_lock);
                         }
                         pthread_mutex_unlock(&food[index].lock);
                     }
