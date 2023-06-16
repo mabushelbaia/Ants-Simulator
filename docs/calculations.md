@@ -1,9 +1,10 @@
 ## Distance Between two points
 
 $$
-
+\begin{aligned}
 Distance = \sqrt{{(y - y_0)}^{2} + {(x - x_0)}^{2}} \\
 Angle = \arctan{(\frac{y - y_0 }{x - x_0})}
+\end{aligned}
 $$
 
 ## Ants moving
@@ -47,12 +48,12 @@ $$ Phoromone \propto {1 \over Distance} $$
 I want the Phormone to range from 0 to 100, and when ever the ant is about 100 pixels away from the food I want it to release 70
 
 $$
-\displaylines{
+\begin{aligned}
 Phormone = 100 * \exp(- k * 100) \\
 70 = 100 * \exp(- k * 100) \\
 0.7 = \exp(- k * 100) \\
 \ln{0.7} = -k * 100  \\
 k = - {ln{0.7} \over 100} \\
 k = 0.00356674944 \\
-}
+\end{aligned}
 $$
