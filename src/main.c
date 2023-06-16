@@ -178,7 +178,7 @@ void *createPortions(void *arg)
 			food[i].A = rand() % 125 + 125;
 			food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
 			food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
-			food[i].portionts = rand() % (NUM_ANTS / 10) + 1;
+			food[i].portionts = rand() % (NUM_ANTS / 10) +10;
 			food[i].ants_count = 0;
 		}
 		PRESENT_FOOD += INITIAL_SIZE;

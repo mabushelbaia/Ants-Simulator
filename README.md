@@ -1,6 +1,8 @@
 # C Template (Template Repositery)
 A simple structre I use for my c projects.
 ---
+![Simulation](https://github.com/mabushelbaia/Realtimep3/blob/main/assets/simulation.png?raw=true)
+
 
 ## Directory Structure
 ```bash
