@@ -41,6 +41,18 @@ void *makeFood(void *arg)
         // check if a food portion is outside the screen then remove it from the food array
         sleep(FOOD_DELAY);
         pthread_mutex_lock(&food_placment_lock);
+        for (int j=0; j < PRESENT_FOOD; j++)
+        {
+            if (food[j].portionts <= 0)
+            {
+                for (int i = j; i < PRESENT_FOOD - 1; i++)
+                {
+                    food[i] = food[i + 1];
+                }
+                PRESENT_FOOD--;
+            }
+            food = realloc(food, sizeof(Food) * PRESENT_FOOD);
+        }
         if (initial_setup)
             initial_setup = false;
         else
@@ -70,6 +82,7 @@ void updateAnt(Ant *ant, Food *food)
     // printf("Ant %d Ph: %d\n", ant->ID, ant->pheromone);
     if (food != NULL)
     {
+        pthread_mutex_lock(&food_placment_lock);
         for (int i = 0; i < PRESENT_FOOD; i++)
         {
             float dx = food[i].x - ant->x;
@@ -81,7 +94,7 @@ void updateAnt(Ant *ant, Food *food)
                 index = i;
             }
         }
-
+        pthread_mutex_unlock(&food_placment_lock);
         float dx = food[index].x - ant->x;
         float dy = food[index].y - ant->y;
 
