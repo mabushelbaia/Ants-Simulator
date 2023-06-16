@@ -18,10 +18,10 @@ $$
 
 ## Bouncing-off
 
-When an ant hit a wall it goes in the opposite direction so
-$$ Angle = Angle + \pi $$
-and then it bounces with a 45 degree
-$$ Angle = Angle \pm \frac{\pi}{4} $$
+When an ant hit a wall it goes in the opposite direction so <br>
+$$Angle = Angle + \pi$$ <br>
+and then it bounces with a 45 degree <br>
+$$Angle = Angle \pm \frac{\pi}{4}$$ <br>
 
 ```c
 if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)
