@@ -11,6 +11,7 @@ typedef struct Ant
     int ID;
     int R, G, B, A;
     int pheromone;
+    int distance;
     pthread_mutex_t lock;
 } Ant;
 typedef struct Food

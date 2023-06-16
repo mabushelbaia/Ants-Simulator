@@ -190,6 +190,7 @@ void updateAnt(Ant *ant, Food *food)
         if (min_distance < FOOD_DETECTION_RADIUS)
         {
             ant->angle = atan2(dy, dx);
+            ant->distance = min_distance;
             ant->pheromone = (int)100 * exp(-0.00356674944 * min_distance);
             pthread_mutex_lock(&food[index].lock);
             food[index].ants_count++;
@@ -249,8 +250,6 @@ void updateAnt(Ant *ant, Food *food)
         }
         else if (min_distance > FOOD_DETECTION_RADIUS && min_distance < 3000)
         {
-
-            printf("I;m here distance %d\n" , min_distance);
             Ant *best_ant = NULL;
             for (int i = 0; i < NUM_ANTS; ++i)
             {
@@ -284,21 +283,29 @@ void updateAnt(Ant *ant, Food *food)
                 int ants_distance = sqrt((ant->x - best_ant->x) * (ant->x - best_ant->x) + (ant->y - best_ant->y) * (ant->y - best_ant->y));
                 if (ants_distance < PHORMONE_FOLLOWING_RADIUS)
                 {
-                    ant->angle = best_ant->angle;
-                    ant->R = 255;
-                    ant->G = 125;
-                    ant->B = 0;
-                    best_ant->R = 255;
+                    int x3 = best_ant->x + cos(best_ant->angle) * best_ant->distance;
+                    int y3 = best_ant->y + sin(best_ant->angle) * best_ant->distance;
+                    ant->angle = atan2(y3 - ant->y, x3 - ant->x);
                 }
-                else
+                else if (best_ant->pheromone > PHORMONE_ANGLE_SHIFT_AMOUNT)
                 {
-                    ant->R = 0;
-                    ant->G = 0;
-                    ant->B = 0;
+
+                    int x3 = best_ant->x + cos(best_ant->angle) * best_ant->distance;
+                    int y3 = best_ant->y + sin(best_ant->angle) * best_ant->distance;
+                    float angle = atan2(y3 - ant->y, x3 - ant->x);
+                    if (angle > ant->angle)
+                    {
+                        ant->angle += PI/36;
+                    }
+                    else if (angle < ant->angle)
+                    {
+                        ant->angle -= PI/36;
+                    }
                 }
             }
             best_ant = NULL;
         }
+
         ant->x += ant->speed * cos(ant->angle);
         ant->y += ant->speed * sin(ant->angle);
         if (ant->x + ANT_SIZE / 2 >= SCREEN_WIDTH || ant->x - ANT_SIZE / 2 <= 0)
