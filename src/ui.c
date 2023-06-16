@@ -184,9 +184,10 @@ void updateAnt(Ant *ant, Food *food)
 
         float dx = food[index].x - ant->x;
         float dy = food[index].y - ant->y;
-
         if (min_distance < FOOD_DETECTION_RADIUS)
         {
+            ant->pheromone = 100 * exp(-0.00356674944  * min_distance);
+            printf("pheromone: %f\n", ant->pheromone);
             ant->angle = atan2(dy, dx);
             if (min_distance - ANT_SIZE/2 <= FOOD_SIZE)
             {
@@ -226,7 +227,6 @@ void updateAnt(Ant *ant, Food *food)
                             pthread_mutex_lock(&food_placment_lock);
                             food[index].x = -1000;
                             food[index].y = -1000;
-                            // PRESENT_FOOD--;
                             for (int i = 0; i < food[index].ants_count; ++i)
                             {
                                 food[index].nearby_ants[i]->speed = SPEED;
