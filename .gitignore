@@ -2,6 +2,7 @@
 # Prerequisites
 *.d
 .vscode
+build/*
 # Object files
 *.o
 *.ko
