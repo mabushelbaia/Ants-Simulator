@@ -17,7 +17,7 @@ sudo apt-get install libsdl2-ttf-dev
 sudo apt-get install libsdl2-image-dev
 ```
 
-Arch
+Arch    
 
 ```bash
 sudo pacman -S sdl2
