@@ -1,6 +1,7 @@
 ## Distance Between two points
 
 $$
+
 Distance = \sqrt{{(y - y_0)}^{2} + {(x - x_0)}^{2}} \\
 Angle = \arctan{(\frac{y - y_0 }{x - x_0})}
 $$
@@ -8,8 +9,10 @@ $$
 ## Ants moving
 
 $$
+\begin{aligned}
 ant\rightarrow x += ant\rightarrow speed \times \cos{(angle)} \\
 ant\rightarrow y += ant\rightarrow speed \times \sin{(angle)}
+\end{aligned}
 $$
 
 ## Bouncing-off
