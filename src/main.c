@@ -159,7 +159,7 @@ void clean(void)
 
 void *timer(void *args)
 {
-	sleep(SIMULATION_TIME*5);
+	sleep(SIMULATION_TIME*60);
 	quit = true;
 	pthread_exit(NULL);
 }
