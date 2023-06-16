@@ -1,4 +1,4 @@
-# Installation.md
+# Install.md
 
 ## Clone the repositery
 
