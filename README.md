@@ -36,5 +36,5 @@ A simple structre I use for my c projects.
 - [X] Threads
 - [x] Food
 - [x] Mutex
-- [ ] Hermons
+- [ ] Steroids
 - [ ] Improve Structure
