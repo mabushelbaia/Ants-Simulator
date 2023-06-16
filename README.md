@@ -1,4 +1,4 @@
-# Ants Simulation
+# Ants Simulator 
 A thread based application to learn how to work with POSIX threads under linux.
 
 🔗 | [Project Statment](docs/project3_threads.pdf)  <br>
