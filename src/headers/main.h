@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 #include "common.h"
+#include "ui.h"
+#include "ant.h"
 Ant *ant;
 Food *food;
 SDL_Window *window = NULL;
@@ -21,7 +23,6 @@ int PHORMONE_FOLLOWING_RADIUS;
 int SIMULATION_TIME;
 int PRESENT_FOOD;
 pthread_mutex_t food_placment_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t ant_placment_lock = PTHREAD_MUTEX_INITIALIZER;
 bool threads_start = false;
 pthread_t * thread;
 void create_threads(pthread_t *thread);

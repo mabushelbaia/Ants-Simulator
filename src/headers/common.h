@@ -1,3 +1,5 @@
+#ifndef COMMON_H
+#define COMMON_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,3 +42,37 @@ typedef unsigned long long ullong;
 typedef long long llong;
 typedef unsigned char uchar;
 typedef unsigned short ushort;
+extern SDL_Window *window;
+extern SDL_Renderer *renderer;
+extern const int SCREEN_WIDTH;
+extern const int SCREEN_HEIGHT;
+extern const int ANT_SIZE;
+extern const int FOOD_SIZE;
+typedef struct Ant
+{
+    float x;
+    float y;
+    float speed;
+    float angle;
+    bool ate;
+    int ID;
+    int R, G, B, A;
+    int pheromone;
+    int distance;
+    pthread_mutex_t lock;
+} Ant;
+
+typedef struct Food
+{
+    int id;
+    float x;
+    float y;
+    int portionts;
+    pthread_mutex_t lock;
+    int ants_count;
+    Ant **nearby_ants;
+    int R, G, B, A;
+} Food;
+extern Food *food;
+extern Ant *ant;
+#endif

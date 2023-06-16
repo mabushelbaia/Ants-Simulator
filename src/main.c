@@ -1,4 +1,3 @@
-#include "headers/ui.h"
 #include "headers/main.h"
 bool cleaned = false;
 bool running = true;
@@ -122,15 +121,7 @@ void run_gui(pthread_t *thread)
 		}
 	}
 }
-void *updateAnt_thread(void *args)
-{
-	while (running)
-	{
-		updateAnt(args, food);
-		usleep(1 / 60.0 * 1000000);
-	}
-	pthread_exit(NULL);
-}
+
 void create_threads(pthread_t *thread)
 {
 	printf("Starting threads...\n");
@@ -157,38 +148,4 @@ void clean(void)
 		shutdown();
 		exit(0);
 	}
-}
-
-void *makeFood(void *arg)
-{
-	pthread_mutex_init(&food_placment_lock, NULL);
-	int INITIAL_SIZE = 3;
-	PRESENT_FOOD = 0;
-	food = malloc(sizeof(Food) * INITIAL_SIZE);
-	bool initial_setup = true;
-	while (running)
-	{
-		// check if a food portion is outside the screen then remove it from the food array
-		sleep(FOOD_DELAY);
-		pthread_mutex_lock(&food_placment_lock);
-		if (initial_setup)
-			initial_setup = false;
-		else
-			food = realloc(food, sizeof(Food) * (PRESENT_FOOD + INITIAL_SIZE));
-		for (int i = PRESENT_FOOD; i < PRESENT_FOOD + INITIAL_SIZE; ++i)
-		{
-			pthread_mutex_init(&food[i].lock, NULL);
-			food[i].G = rand() % 255;
-			food[i].B = rand() % 255;
-			food[i].R = rand() % 255;
-			food[i].A = rand() % 125 + 125;
-			food[i].x = rand() % (SCREEN_WIDTH - SCREEN_WIDTH / 3) + SCREEN_WIDTH / 3;
-			food[i].y = rand() % (SCREEN_HEIGHT - SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 3;
-			food[i].portionts = 20;
-			food[i].ants_count = 0;
-		}
-		PRESENT_FOOD += INITIAL_SIZE;
-		pthread_mutex_unlock(&food_placment_lock);
-	}
-	pthread_exit(NULL);
 }
