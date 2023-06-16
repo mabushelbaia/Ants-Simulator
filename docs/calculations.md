@@ -44,7 +44,7 @@ if (ant->y + ANT_SIZE / 2 >= SCREEN_HEIGHT || ant->y - ANT_SIZE / 2 <= 0)
 
 ## Phoromone Release
 
-$$ Phoromone \propto {1 \over Distance} $$ \\
+$$Phoromone \propto {1 \over Distance}$$ <br>
 I want the Phormone to range from 0 to 100, and when ever the ant is about 100 pixels away from the food I want it to release 70
 
 $$
