@@ -4,7 +4,7 @@ A thread based application to learn how to work with POSIX threads under linux.
 🔗 | [Project Statment](docs/project3_threads.pdf)  <br>
 🔗 | [Installation](docs/install.md)<br>
 ![Simulation](assets/simulation.png)<br>
-![Simulation](assets/simulation)<br>
+![Simulation](assets/simulation.webp)<br>
 ---
 ## Running
 After insalling required libraries see [Installion Guide](docs/install.md) <br>
