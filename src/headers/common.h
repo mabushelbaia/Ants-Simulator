@@ -59,6 +59,7 @@ typedef struct Ant
     int R, G, B, A;
     int pheromone;
     int distance;
+    int counter;
     pthread_mutex_t lock;
 } Ant;
 

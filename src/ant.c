@@ -14,6 +14,7 @@ Ant makeAnt(int size, int id)
         .ID = id,
         .ate = false,
         .pheromone = 0,
+        .counter = 0,
     };
     pthread_mutex_init(&ant.lock, NULL);
     return ant;
@@ -41,7 +42,7 @@ void *makeFood(void *arg)
         // check if a food portion is outside the screen then remove it from the food array
         sleep(FOOD_DELAY);
         pthread_mutex_lock(&food_placment_lock);
-        for (int j=0; j < PRESENT_FOOD; j++)
+        for (int j = 0; j < PRESENT_FOOD; j++)
         {
             if (food[j].portionts <= 0)
             {
@@ -79,7 +80,6 @@ void updateAnt(Ant *ant, Food *food)
 {
     int min_distance = INT_MAX;
     int index = -1;
-    // printf("Ant %d Ph: %d\n", ant->ID, ant->pheromone);
     if (food != NULL)
     {
         pthread_mutex_lock(&food_placment_lock);
@@ -100,6 +100,7 @@ void updateAnt(Ant *ant, Food *food)
 
         if (min_distance < FOOD_DETECTION_RADIUS)
         {
+            ant->counter = 0;
             ant->angle = atan2(dy, dx);
             ant->distance = min_distance;
             ant->pheromone = (int)100 * exp(-0.00356674944 * min_distance);
@@ -191,26 +192,32 @@ void updateAnt(Ant *ant, Food *food)
             }
             if (best_ant != NULL)
             {
+                ant->counter = 0;
                 int ants_distance = sqrt((ant->x - best_ant->x) * (ant->x - best_ant->x) + (ant->y - best_ant->y) * (ant->y - best_ant->y));
                 if (ants_distance < PHORMONE_FOLLOWING_RADIUS)
                 {
                     int x3 = best_ant->x + cos(best_ant->angle) * best_ant->distance;
                     int y3 = best_ant->y + sin(best_ant->angle) * best_ant->distance;
-                    ant->angle = atan2(y3 - ant->y, x3 - ant->x);
+                    ant->angle = atan2(ant->y - y3 , ant->x - x3);
                 }
                 else if (best_ant->pheromone > PHORMONE_ANGLE_SHIFT_AMOUNT)
                 {
 
                     int x3 = best_ant->x + cos(best_ant->angle) * best_ant->distance;
                     int y3 = best_ant->y + sin(best_ant->angle) * best_ant->distance;
-                    float angle = atan2(y3 - ant->y, x3 - ant->x);
-                    if (angle > ant->angle)
+                    float angle = atan2(ant->y - y3, ant->x - x3);
+                    ant-> counter += 1;
+                    ant->counter = ant->counter % 60;
+                    if (ant->counter % 60 == 0 && ant->counter != 0)
                     {
-                        ant->angle += PI / 72;
-                    }
-                    else if (angle < ant->angle)
-                    {
-                        ant->angle -= PI / 72;
+                        if (angle > ant->angle)
+                        {
+                            ant->angle += PI / 36;
+                        }
+                        else if (angle < ant->angle)
+                        {
+                            ant->angle -= PI / 36;
+                        }
                     }
                 }
             }
@@ -237,4 +244,3 @@ void updateAnt(Ant *ant, Food *food)
         }
     }
 }
-
