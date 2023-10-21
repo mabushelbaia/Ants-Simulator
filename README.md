@@ -1,5 +1,5 @@
 # Ants Simulator 
-A thread based application to learn how to work with POSIX threads under linux.
+A thread based application simulating food foraging and pheromone communication in ant life.
 
 🔗 | [Project Statment](docs/project3_threads.pdf)  <br>
 🔗 | [Installation](docs/install.md)<br>
